@@ -29,7 +29,7 @@ provider:
 
 functions:
   GetWorkCalendar:
-    handler: getWorkCalendar.handler
+    handler: src/http/lambda/getWorkCalendar.handler
     events:
       - http:
           method: get
@@ -37,7 +37,7 @@ functions:
           cors: true
 
   CreateWorkCalendar:
-    handler: createWorkCalendarhandler
+    handler: src/http/lambda/createWorkCalendarhandler
     events:
       - http:
           method: patch
@@ -45,7 +45,7 @@ functions:
           cors: true
 
   UpdateWorkCalendar:
-    handler: updateWorkCalendar.handler
+    handler: src/http/lambda/updateWorkCalendar.handler
     events:
       - http:
           method: patch
@@ -53,7 +53,7 @@ functions:
           cors: true
 
   DeleteWorkCalendar:
-    handler: deleteWorkCalendar.handler
+    handler: src/http/lambda/deleteWorkCalendar.handler
     events:
       - http:
           method: delete

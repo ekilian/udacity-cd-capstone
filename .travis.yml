@@ -1,0 +1,10 @@
+language: node_js
+node_js:
+  - "12.x"
+cache:
+  directories:
+    - backend/node_modules
+script:
+    - cd backend
+    - npm install -g serverless
+    - sls deploy -v
