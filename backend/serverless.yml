@@ -13,6 +13,8 @@ custom:
 plugins:
   - serverless-webpack
   - serverless-iam-roles-per-function
+  - serverless-offline
+  - serverless-dynamodb-local
 
 provider:
   name: aws
@@ -61,6 +63,11 @@ functions:
           cors: true
 
 resources:
+  # DynamoDB
+  - ${file(resources/dynamodb.yml)}
+  # Cognito
+  - ${file(resources/cognito.yml)}
+
   Resources:
     GatewayResponseDefault4XX:
       Type: AWS::ApiGateway::GatewayResponse
@@ -73,18 +80,3 @@ resources:
         RestApiId:
           Ref: ApiGatewayRestApi
 
-    WorkCalendarTable:
-      Type: AWS::DynamoDB::Table
-      Properties:
-        AttributeDefinitions:
-          - AttributeName: year
-            AttributeType: N
-          - AttributeName: month
-            AttributeType: N
-        KeySchema:
-          - AttributeName: year
-            KeyType: HASH
-          - AttributeName: month
-            KeyType: RANGE
-        BillingMode: PAY_PER_REQUEST
-        TableName: ${self:provider.environment.WORK_CALENDAR_TABLE}
