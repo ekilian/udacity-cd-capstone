@@ -1,9 +1,10 @@
 import { APIGatewayProxyHandler, APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
-import { createLogger } from '../../utils/logger';
+import { createLogger } from '../../../utils/logger';
 
 
-const logger = createLogger('GetWorkCalendar');
+const logger = createLogger('DeleteWorkCalendar');
 
+// TODO - Implement
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   logger.info('Processing event: ', event);
 

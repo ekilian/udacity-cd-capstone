@@ -31,7 +31,7 @@ provider:
 
 functions:
   GetWorkCalendar:
-    handler: src/http/lambda/getWorkCalendar.handler
+    handler: src/http/lambda/calendar/getWorkCalendar.handler
     events:
       - http:
           method: get
@@ -39,7 +39,7 @@ functions:
           cors: true
 
   CreateWorkCalendar:
-    handler: src/http/lambda/createWorkCalendarhandler
+    handler: src/http/lambda/calendar/createWorkCalendarhandler
     events:
       - http:
           method: patch
@@ -47,7 +47,7 @@ functions:
           cors: true
 
   UpdateWorkCalendar:
-    handler: src/http/lambda/updateWorkCalendar.handler
+    handler: src/http/lambda/calendar/updateWorkCalendar.handler
     events:
       - http:
           method: patch
@@ -55,12 +55,53 @@ functions:
           cors: true
 
   DeleteWorkCalendar:
-    handler: src/http/lambda/deleteWorkCalendar.handler
+    handler: src/http/lambda/calendar/deleteWorkCalendar.handler
     events:
       - http:
           method: delete
           path: /calendar/{year}/{month}
           cors: true
+
+  GetUsers:
+    handler: src/http/lambda/users/getUsers.handler
+    events:
+      - http:
+          method: post
+          path: /users
+          cors: true
+
+  GetUser:
+    handler: src/http/lambda/users/getUser.handler
+    events:
+      - http:
+          method: post
+          path: /users/{userId}
+          cors: true
+
+  CreateUser:
+    handler: src/http/lambda/users/createUser.handler
+    events:
+      - http:
+          method: post
+          path: /users
+          cors: true
+
+  EditUser:
+    handler: src/http/lambda/users/editUser.handler
+    events:
+      - http:
+          method: patch
+          path: /users/{userId}
+          cors: true
+
+  DeleteUser:
+    handler: src/http/lambda/users/deleteUser.handler
+    events:
+      - http:
+          method: delete
+          path: /users/{userId}
+          cors: true
+
 
 resources:
   # API Gateway
