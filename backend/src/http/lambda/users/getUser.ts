@@ -11,14 +11,15 @@ const logger = createLogger('GetUser');
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   logger.info('Processing event: ', event);
 
-  const accessToken:string = "TODO: Read AccessToken from JWT";
+  const userName:string = event.pathParameters.userId;
 
   var params = {
-    AccessToken: accessToken
+    Username: userName,
+    UserPoolId: 'us-east-2_gSbjOa8i9'
   };
 
   try {
-    const result = await cognitoClient.getUser(params).promise();
+    const result = await cognitoClient.adminGetUser(params).promise();
     return {
       statusCode: 200,
       body: JSON.stringify(result.UserAttributes)

@@ -10,7 +10,7 @@ import middy from '@middy/core';
 // FIXME Region from config
 const cognitoClient = new AWS.CognitoIdentityServiceProvider({
   apiVersion: config.cognito.API_VERSION,
-  region: "us-east-1"
+  region: "us-east-2"
 });
 const logger = createLogger('DeleteUser');
 
@@ -21,8 +21,9 @@ export const handler: APIGatewayProxyHandler = middy(async (event: APIGatewayPro
 
   const userName:string = event.pathParameters.userId;
 
+  // TODO ppol from config -> from env
   var params = {
-    UserPoolId: '3p10t8mc7h8rtc6p9mlmhfsgdb',
+    UserPoolId: 'us-east-2_kwBneZOcU',
     Username: userName
   };
 
@@ -30,7 +31,7 @@ export const handler: APIGatewayProxyHandler = middy(async (event: APIGatewayPro
     await cognitoClient.adminDeleteUser(params).promise();
     return {
       statusCode: 201,
-      body: ''
+      body: `User with Username ${userName} has successfully been deleted.`
     }
   } catch(err) {
     logger.error(err);

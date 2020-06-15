@@ -9,7 +9,7 @@ import { config } from '../../../config/config';
 // FIXME Region from config
 const cognitoClient = new AWS.CognitoIdentityServiceProvider({
   apiVersion: config.cognito.API_VERSION,
-  region: "us-east-1"
+  region: "us-east-2"
 });
 const logger = createLogger('CreateUser');
 
@@ -17,20 +17,21 @@ const logger = createLogger('CreateUser');
 // TODO - Doc me
 export const handler: APIGatewayProxyHandler = middy(async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   logger.info('Processing event: ', event);
-  //TODO: Read Body
-  const userName:string = event.pathParameters.userId;
+
+  const parsedBody:any = JSON.parse(event.body);
 
   var params = {
-    UserPoolId: '3p10t8mc7h8rtc6p9mlmhfsgdb',
-    Username: userName,
-    /* UserAttributes: [
-      {
-        Name: 'name',
-        Value: 'STRING_VALUE'
-      },
-    ] */
+    UserPoolId: parsedBody.UserPoolId,
+    Username: parsedBody.Username,
+    UserAttributes: parsedBody.UserAttributes
   };
+  //Set updated_at
+  params.UserAttributes.push({
+    Name: "updated_at",
+    Value: new Date().getTime().toString()
+  })
 
+  logger.info("Calling AdminCreateUser with: ", params);
   try {
     const result = await cognitoClient.adminCreateUser(params).promise();
     return {
@@ -45,4 +46,5 @@ export const handler: APIGatewayProxyHandler = middy(async (event: APIGatewayPro
     }
   }
 
-}).use(cors());
+})
+.use(cors())

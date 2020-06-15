@@ -4,11 +4,6 @@ service:
 #app: your-app-name
 #org: your-org-name
 
-custom:
-  webpack:
-    webpackConfig: ./webpack.config.js
-    includeModules: true
-
 # Add the serverless-webpack plugin
 plugins:
   - serverless-webpack
@@ -28,55 +23,87 @@ provider:
   environment:
     AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
     WORK_CALENDAR_TABLE: WorkCalendarTable-${self:provider.stage}
+  cognito:
+    USER_POOL_ID: ${self:provider.region}_kwBneZOcU
+
+
+custom:
+  webpack:
+    webpackConfig: ./webpack.config.js
+    includeModules:
+      forceExclude:
+        - aws-sdk
+
+  serverless-offline:
+    httpPort: 4000
+
+  dynamodb:
+    stages:
+      - dev
+    start:
+      port: 8000
+      inMemory: true
+      migrate: true
+
 
 functions:
-  GetWorkCalendar:
-    handler: src/http/lambda/calendar/getWorkCalendar.handler
-    events:
-      - http:
-          method: get
-          path: /calendar/{year}/{month}
-          cors: true
+  # GetWorkCalendar:
+  #   handler: src/http/lambda/calendar/getWorkCalendar.handler
+  #   events:
+  #     - http:
+  #         method: get
+  #         path: /calendar/{year}/{month}
+  #         cors: true
 
-  CreateWorkCalendar:
-    handler: src/http/lambda/calendar/createWorkCalendarhandler
-    events:
-      - http:
-          method: patch
-          path: /calendar/{year}/{month}
-          cors: true
+  # CreateWorkCalendar:
+  #   handler: src/http/lambda/calendar/createWorkCalendarhandler
+  #   events:
+  #     - http:
+  #         method: patch
+  #         path: /calendar/{year}/{month}
+  #         cors: true
 
-  UpdateWorkCalendar:
-    handler: src/http/lambda/calendar/updateWorkCalendar.handler
-    events:
-      - http:
-          method: patch
-          path: /calendar/{year}/{month}
-          cors: true
+  # UpdateWorkCalendar:
+  #   handler: src/http/lambda/calendar/updateWorkCalendar.handler
+  #   events:
+  #     - http:
+  #         method: patch
+  #         path: /calendar/{year}/{month}
+  #         cors: true
 
-  DeleteWorkCalendar:
-    handler: src/http/lambda/calendar/deleteWorkCalendar.handler
-    events:
-      - http:
-          method: delete
-          path: /calendar/{year}/{month}
-          cors: true
+  # DeleteWorkCalendar:
+  #   handler: src/http/lambda/calendar/deleteWorkCalendar.handler
+  #   events:
+  #     - http:
+  #         method: delete
+  #         path: /calendar/{year}/{month}
+  #         cors: true
 
   GetUsers:
     handler: src/http/lambda/users/getUsers.handler
     events:
       - http:
-          method: post
+          method: get
           path: /users
           cors: true
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - cognito-idp:ListUsers
+        Resource: arn:aws:cognito-idp:${self:provider.region}:*:userpool/${self:provider.cognito.USER_POOL_ID}
 
   GetUser:
     handler: src/http/lambda/users/getUser.handler
     events:
       - http:
-          method: post
+          method: get
           path: /users/{userId}
           cors: true
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - cognito-idp:AdminGetUser
+        Resource: arn:aws:cognito-idp:${self:provider.region}:*:userpool/${self:provider.cognito.USER_POOL_ID}
 
   CreateUser:
     handler: src/http/lambda/users/createUser.handler
@@ -85,6 +112,11 @@ functions:
           method: post
           path: /users
           cors: true
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - cognito-idp:AdminCreateUser
+        Resource: arn:aws:cognito-idp:${self:provider.region}:*:userpool/${self:provider.cognito.USER_POOL_ID}
 
   EditUser:
     handler: src/http/lambda/users/editUser.handler
@@ -93,6 +125,11 @@ functions:
           method: patch
           path: /users/{userId}
           cors: true
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - cognito-idp:UpdateUser
+        Resource: arn:aws:cognito-idp:${self:provider.region}:*:userpool/${self:provider.cognito.USER_POOL_ID}
 
   DeleteUser:
     handler: src/http/lambda/users/deleteUser.handler
@@ -101,7 +138,11 @@ functions:
           method: delete
           path: /users/{userId}
           cors: true
-
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - cognito-idp:AdminDeleteUser
+        Resource: arn:aws:cognito-idp:${self:provider.region}:*:userpool/${self:provider.cognito.USER_POOL_ID}
 
 resources:
   # API Gateway

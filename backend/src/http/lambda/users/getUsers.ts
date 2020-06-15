@@ -14,7 +14,7 @@ export const handler: APIGatewayProxyHandler = middy(async (event: APIGatewayPro
   logger.info('Processing event: ', event);
 
   var params = {
-    UserPoolId: '3p10t8mc7h8rtc6p9mlmhfsgdb'
+    UserPoolId: 'us-east-2_kwBneZOcU'
   };
 
   try {

@@ -1,20 +1,31 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { BrowserRouter } from 'react-router-dom';
 
 import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
-import { DndProvider } from 'react-dnd';
-import { HTML5Backend } from 'react-dnd-html5-backend'
+import { createBrowserHistory } from 'history'
+
+import { Router, Route } from 'react-router-dom';
+import Callback from './auth/Callback';
+
+const history = createBrowserHistory()
 
 ReactDOM.render(
   <React.StrictMode>
-    <BrowserRouter>
-      <DndProvider backend={HTML5Backend}>
-        <App />
-      </DndProvider>
-    </BrowserRouter>
+      <Router history={history}>
+        <div>
+          <Route
+            path="/authcallback"
+            component={Callback}
+          />
+          <Route
+            render={props => {
+              return <App />
+            }}
+          />
+        </div>
+      </Router>
   </React.StrictMode>,
   document.getElementById('root')
 );

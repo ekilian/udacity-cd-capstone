@@ -1,6 +1,5 @@
 import React from 'react';
-import {useLocation} from 'react-router-dom'
-
+import { Switch, Route, useHistory } from 'react-router-dom'
 
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
@@ -15,11 +14,13 @@ import IconButton from '@material-ui/core/IconButton';
 import Container from '@material-ui/core/Container';
 import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
-import { mainListItems } from './listItems';
-//import Employees from '../employees/Employees';
-import WorkCalendar from '../calendar/WorkCalendar';
-import Employees from '../employees/Employees';
+import { mainListItems, userListItems } from './listItems';
+import {Lock, LockOpenRounded} from '@material-ui/icons'
 
+import WorkCalendar from '../schedule/WorkSchedule';
+import Employees from '../users/Employees';
+import { IAuthContext, useAppContext } from '../../context/context';
+import { EditUser } from '../users/EditUser';
 
 
 const drawerWidth = 240;
@@ -104,9 +105,11 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function Dashboard() {
+  const history = useHistory();
+  const authContext:IAuthContext = useAppContext();
   const classes = useStyles();
   const [open, setOpen] = React.useState(true);
-  const location = useLocation();
+  //const location = useLocation();
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -114,69 +117,71 @@ export default function Dashboard() {
   const handleDrawerClose = () => {
     setOpen(false);
   };
-
-  let content = determineContent(location.pathname);
+  const handleLogin = () => {
+    if(authContext.isAuthenticated) {
+      return handleLogout();
+    }
+    // FIXME
+    window.location.href = "https://bideax0dy3.auth.us-east-2.amazoncognito.com/login?client_id=3p10t8mc7h8rtc6p9mlmhfsgdb&response_type=code&scope=profile+openid&redirect_uri=http://localhost:3000/authcallback"
+  };
+  function handleLogout() {
+    authContext.userHasAuthenticated(false);
+  }
 
   return (
-    <div className={classes.root}>
-      <CssBaseline />
-      <AppBar position="absolute" className={clsx(classes.appBar, open && classes.appBarShift)}>
-        <Toolbar className={classes.toolbar}>
-          <IconButton
-            edge="start"
-            color="inherit"
-            aria-label="open drawer"
-            onClick={handleDrawerOpen}
-            className={clsx(classes.menuButton, open && classes.menuButtonHidden)}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography component="h1" variant="h6" color="inherit" noWrap className={classes.title}>
-            &nbsp;
-          </Typography>
-          <IconButton color="inherit">
-
-          </IconButton>
-        </Toolbar>
-      </AppBar>
-      <Drawer
-        variant="permanent"
-        classes={{
-          paper: clsx(classes.drawerPaper, !open && classes.drawerPaperClose),
-        }}
-        open={open}
-      >
-        <div className={classes.toolbarIcon}>
-          <IconButton onClick={handleDrawerClose}>
-            <ChevronLeftIcon />
-          </IconButton>
-        </div>
-        <Divider />
-        <List>{mainListItems}</List>
-        <Divider />
-      </Drawer>
-      <main className={classes.content}>
-        <div className={classes.appBarSpacer} />
-        <Container maxWidth="xl" className={classes.container}>
-          {content}
-        </Container>
-      </main>
-    </div>
+      <div className={classes.root}>
+        <CssBaseline />
+        <AppBar position="absolute" className={clsx(classes.appBar, open && classes.appBarShift)}>
+          <Toolbar className={classes.toolbar}>
+            <IconButton
+              edge="start"
+              color="inherit"
+              aria-label="open drawer"
+              onClick={handleDrawerOpen}
+              className={clsx(classes.menuButton, open && classes.menuButtonHidden)}
+            >
+              <MenuIcon />
+            </IconButton>
+            <Typography component="h1" variant="h6" color="inherit" noWrap className={classes.title}>
+              &nbsp;
+            </Typography>
+            <IconButton
+              color="inherit"
+              onClick={handleLogin}>
+              {authContext.isAuthenticated
+                ? <LockOpenRounded />
+                : <Lock />}
+            </IconButton>
+          </Toolbar>
+        </AppBar>
+        <Drawer
+          variant="permanent"
+          classes={{
+            paper: clsx(classes.drawerPaper, !open && classes.drawerPaperClose),
+          }}
+          open={open}
+        >
+          <div className={classes.toolbarIcon}>
+            <IconButton onClick={handleDrawerClose}>
+              <ChevronLeftIcon />
+            </IconButton>
+          </div>
+          <Divider />
+          <List>{mainListItems}</List>
+          <Divider />
+          <List>{userListItems}</List>
+        </Drawer>
+        <main className={classes.content}>
+          <div className={classes.appBarSpacer} />
+          <Container maxWidth="xl" className={classes.container}>
+            <Switch>
+              <Route exact path="/workcalendar" component={WorkCalendar} />
+              <Route exact path="/employees" component={Employees} />
+              {/* <Route exact path="/login" component={Login} /> */}
+              <Route exact path="/edituser" component={EditUser} />
+            </Switch>
+          </Container>
+        </main>
+      </div>
   );
-}
-
-const determineContent = (path:string):JSX.Element => {
-  let result:JSX.Element;
-  switch (path) {
-    case '/workcalendar':
-      result = <WorkCalendar />
-      break;
-    case '/employees':
-      result = <Employees />
-      break;
-    default:
-      result = <WorkCalendar />
-      break;
-  }
-  return result;
 }

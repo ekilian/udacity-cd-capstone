@@ -9,9 +9,9 @@ export interface PlaningCalendar {
 // Representing one day in a planing calendar.
 export interface PlaningDay {
     day:number;
-    morning?:string[];
+    morning:string[];
     afternoon:string[];
-    night?:string[];
+    night:string[];
     free?:string[];
     active:boolean;
 }
