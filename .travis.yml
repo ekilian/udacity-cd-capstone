@@ -1,11 +1,17 @@
 language: node_js
 node_js:
   - 12
+
 cache:
   directories:
     - backend/node_modules
+
 script:
     - cd backend
     - npm install
     - npm install -g serverless
     - sls deploy -v
+
+branches:
+  only:
+  - master
