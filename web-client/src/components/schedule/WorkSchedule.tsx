@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import update from 'immutability-helper'
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 
 import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
 import Grid, { GridSpacing } from '@material-ui/core/Grid';
@@ -8,28 +10,22 @@ import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import InputLabel from '@material-ui/core/InputLabel';
+import { Card } from '@material-ui/core';
+
+import ScheduleActionButtons from './ScheduleActionButtons';
+import { saveWorkSchedule, deleteWorkSchedule, getWorkSchedule } from '../../api/users/ScheduleApi';
 import { createWorkingPlan } from '../../utils/WorkScheduleUtils';
 import { WorkingDay } from './WorkScheduleDay';
 import { DAYS_OF_WEEK } from '../../utils/constants';
-import { DraggableWorker } from './DraggableWorker';
 import { PlaningDay, PlaningCalendar } from '../../model/Calendar';
-import { ItemTypes } from '../../utils/ItemTypes';
-import { Card } from '@material-ui/core';
+import WorkerChips from './WorkerChips';
 
-import { DndProvider } from 'react-dnd';
-import { HTML5Backend } from 'react-dnd-html5-backend';
-import { getUsers } from '../../api/users/UsersApi';
-import { User } from '../../model/User';
-import ScheduleActionButtons from './ScheduleActionButtons';
-import { saveWorkSchedule, deleteWorkSchedule, getWorkSchedule } from '../../api/users/ScheduleApi';
-
-import { v4 as uuid } from 'uuid';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
       flexGrow: 1,
-      width: '90%',
+      width: '93%',
     },
     item: {
       flexGrow: 1,
@@ -57,6 +53,10 @@ const useStyles = makeStyles((theme: Theme) =>
       height: '100%',
       width: 'auto',
       backgroundColor: '#364150',
+    },
+    workerDrag: {
+      margin: theme.spacing(1),
+      justifyContent: 'space-between',
     }
   }),
 );
@@ -65,24 +65,35 @@ const WorkSchedule: React.FC<{}> = () => {
   const [spacing] = React.useState<GridSpacing>(2);
   const classes = useStyles();
 
-  const currentMonth = new Date().getMonth()+1;
-  const currentYear = new Date().getFullYear();
-
-  const [worker, setWorker] = useState({list: [] as User[]});
-  const [month, setMonth] = useState(currentMonth.toString());
-  const [year, setYear] = useState(currentYear.toString());
+  const [month, setMonth] = useState((new Date().getMonth() + 1).toString());
+  const [year, setYear] = useState(new Date().getFullYear().toString());
   const [workPlan, setWorkPlan] = useState<PlaningCalendar>({
     days: [] as PlaningDay[]
   } as PlaningCalendar);
 
+  const [scheduleChanged, setScheduleChanged] = useState(false);
+  const [loadedSchedule, setLoadedSchedule] = useState(false);
+  const [isEditable, setEditable] = useState(true);
+
   const handleChange = (event: React.ChangeEvent<{ value: unknown }>) => {
     const newMonth = event.target.value as string
     setMonth(newMonth);
+    defineEditability(newMonth, year);
   };
+
+  const defineEditability = (month: string, year: string) => {
+    const date = new Date();
+    if (parseInt(month) < date.getMonth() + 1
+      || parseInt(month) > date.getMonth() + 2
+      || parseInt(year) !== date.getFullYear()) {
+      setEditable(false);
+    }
+  }
 
   const handleYearChange = (event: React.ChangeEvent<{ value: unknown }>) => {
     const newYear = event.target.value as string
     setYear(newYear);
+    defineEditability(month, newYear);
   };
 
   const updateParent = (updatedDay: PlaningDay, index:number) => {
@@ -93,23 +104,22 @@ const WorkSchedule: React.FC<{}> = () => {
         }
       })
     )
+    setScheduleChanged(true);
   }
 
   const handleSave = async () => {
     await saveWorkSchedule(workPlan);
+    setScheduleChanged(false);
+    setLoadedSchedule(true);
   }
 
   const handleDelete = async () => {
-    await deleteWorkSchedule(parseInt(year), parseInt(month));
+    const result = await deleteWorkSchedule(parseInt(year), parseInt(month));
+    setWorkPlan(result);
+    setWorkPlan(createWorkingPlan(parseInt(year), parseInt(month)));
+    setScheduleChanged(false);
+    setLoadedSchedule(false)
   }
-
-  useEffect(() => {
-    const callApi = async () => {
-      const workerArray = await getUsers();
-      setWorker({ list: workerArray });
-    }
-    callApi();
-  }, []);
 
   useEffect(() => {
     const callApi = async () => {
@@ -118,10 +128,13 @@ const WorkSchedule: React.FC<{}> = () => {
         setWorkPlan({ days: [] as PlaningDay[] } as PlaningCalendar);
         const newSchedule = createWorkingPlan(parseInt(year), parseInt(month));
         setWorkPlan(newSchedule);
+        setLoadedSchedule(false);
       } else {
-        setWorkPlan({ days: [] as PlaningDay[] } as PlaningCalendar)
+        setWorkPlan({ days: [] as PlaningDay[] } as PlaningCalendar);
         setWorkPlan(loadedSchedule);
+        setLoadedSchedule(true);
       }
+      setScheduleChanged(false);
     }
     callApi();
   }, [month, year]);
@@ -167,11 +180,6 @@ const WorkSchedule: React.FC<{}> = () => {
             </Select>
           </FormControl>
         </Grid>
-        <Grid item md={4}>
-          {worker.list.map((value) => (
-            <DraggableWorker key={uuid()} name={value.nickname} type={ItemTypes.WORKER} isDropped={false}/>
-          ))}
-        </Grid>
         {/* Headline */}
         <Grid container spacing={spacing}>
           {DAYS_OF_WEEK.map((value) => (
@@ -194,8 +202,14 @@ const WorkSchedule: React.FC<{}> = () => {
             </Grid>
           ))}
         </Grid>
-        <ScheduleActionButtons handleSave={handleSave} handleDelete={handleDelete} />
       </Grid>
+      <WorkerChips />
+      <ScheduleActionButtons key="fab"
+              isEditable={isEditable}
+              isSaveActive={scheduleChanged}
+              isDeleteActive={loadedSchedule}
+              handleSave={handleSave}
+              handleDelete={handleDelete} />
     </DndProvider>
   );
 }

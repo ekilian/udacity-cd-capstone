@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { PlaningCalendar } from '../../model/Calendar';
+import { PlaningCalendar, PlaningDay } from '../../model/Calendar';
 import config from '../../config';
 
 
@@ -15,12 +15,13 @@ export const getWorkSchedule = async (year:number, month:number):Promise<Planing
 }
 
 export const saveWorkSchedule = async (schedule:PlaningCalendar):Promise<PlaningCalendar> => {
-  console.log(schedule)
   await axios.post(`${config.apiGateway.URL}/schedule`, schedule);
   return {} as PlaningCalendar;
 }
 
 export const deleteWorkSchedule = async (year:number, month:number):Promise<PlaningCalendar> => {
-  console.log('Delete');
-  return {} as PlaningCalendar;
+  await axios.delete(`${config.apiGateway.URL}/schedule/${year}/${month}`);
+  return {
+    days: [] as PlaningDay[]
+  } as PlaningCalendar;
 }

@@ -9,6 +9,13 @@ export interface DraggableWorkerProps {
   onDelete?:(name:string) => void
 }
 
+const dragStyle: React.CSSProperties = {
+  cursor: 'move',
+  width: '90px'
+}
+const margin: React.CSSProperties = {
+  marginBottom: '2px'
+}
 
 export const DraggableWorker: FunctionComponent<DraggableWorkerProps> = ({name, type, isDropped, onDelete}) => {
 
@@ -21,20 +28,26 @@ export const DraggableWorker: FunctionComponent<DraggableWorkerProps> = ({name, 
 
   if(isDropped) {
     return (
-      <Chip ref={drag}
+      <div style={margin}>
+        <Chip ref={drag}
+            variant="outlined"
+            color="primary"
+            size="small"
+            label={name}
+            onDelete={onDelete}
+            style={dragStyle} />
+      </div>
+    )
+  } else {
+    return (
+      <div style={margin}>
+        <Chip ref={drag}
           variant="outlined"
           color="primary"
           size="small"
           label={name}
-          onDelete={onDelete} />
-    )
-  } else {
-    return (
-      <Chip ref={drag}
-        variant="outlined"
-        color="primary"
-        size="small"
-        label={name} />
+          style={dragStyle} />
+      </div>
     )
   }
 

@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useEffect, useState } from 'react';
+import React, { FunctionComponent, useEffect, useState, useRef } from 'react';
 import update from 'immutability-helper'
 import { useDrop } from 'react-dnd';
 
@@ -41,6 +41,7 @@ export interface PlaningDayProps {
 }
 
 export const WorkingDay: FunctionComponent<PlaningDayProps> = (props) => {
+  const firstUpdate = useRef(true);
   const [planingDay, setPlaningDay] = useState(props.day);
 
   const [{}, dropMorning] = useDrop({
@@ -80,6 +81,10 @@ export const WorkingDay: FunctionComponent<PlaningDayProps> = (props) => {
   });
 
   useEffect(() => {
+    if (firstUpdate.current) {
+      firstUpdate.current = false;
+      return;
+    }
     props.updateParent(planingDay, props.index);
   }, [planingDay])
 

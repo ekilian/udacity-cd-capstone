@@ -4,6 +4,9 @@ import { Delete, Save } from '@material-ui/icons'
 import { Fab, Grid } from '@material-ui/core';
 
 export interface ScheduleActionButtonsProps {
+  isEditable:boolean,
+  isSaveActive:boolean,
+  isDeleteActive:boolean,
   handleSave: () => void,
   handleDelete: () => void,
 }
@@ -21,35 +24,34 @@ const useStyles = makeStyles((theme: Theme) =>
     margin: {
       margin: theme.spacing(1),
     },
-    extendedIcon: {
-      marginRight: theme.spacing(1),
-    },
   }),
 );
 
-const ScheduleActionButtons: React.FC<ScheduleActionButtonsProps> = ({handleSave, handleDelete}) => {
+const ScheduleActionButtons: React.FC<ScheduleActionButtonsProps> = (props) => {
   const classes = useStyles();
 
   return (
-    <div className={classes.fab}>
+    <div className={classes.fab} >
       <Grid container direction="column">
         <Grid item>
-          <Fab color="primary" aria-label="save" className={classes.margin}
-              onClick={handleSave}>
-            <Save className={classes.extendedIcon}/>
+          <Fab color="primary" aria-label="save"
+              className={classes.margin}
+              onClick={props.handleSave}
+              disabled={!props.isSaveActive || !props.isEditable}>
+            <Save />
           </Fab>
         </Grid>
         <Grid item>
-          <Fab variant="extended" size="medium" color="secondary" aria-label="delete"
-              className={classes.margin} onClick={handleDelete}>
-            <Delete className={classes.extendedIcon}/>
-            Delete
+          <Fab color="secondary" aria-label="delete"
+              className={classes.margin}
+              onClick={props.handleDelete}
+              disabled={!props.isDeleteActive || !props.isEditable}>
+            <Delete />
           </Fab>
         </Grid>
       </Grid>
     </div>
   );
-
 }
 
 export default ScheduleActionButtons;
