@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useHistory } from 'react-router-dom';
 
-import Grid from '@material-ui/core/Grid';
-import Divider from '@material-ui/core/Divider';
 import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
-import { Card, Button } from '@material-ui/core';
+import { Card, Button, Divider, Grid } from '@material-ui/core';
 import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
 
@@ -30,23 +27,15 @@ const useStyles = makeStyles((theme: Theme) =>
     extendedIcon: {
       marginRight: theme.spacing(1),
     },
-  })
-);
+}));
 
 
 export default function Employees() {
-  const history = useHistory();
+  const classes = useStyles();
+
   const [worker, setWorker] = useState({
     list: [] as User[]
   });
-
-  useEffect(() => {
-    const callApi = async () => {
-      const workerArray = await getUsers();
-      setWorker({ list: workerArray });
-    }
-    callApi();
-  }, []);
 
   const handleDeleteUser = async (user:User) => {
     const result = await deleteUser(user.username);
@@ -59,7 +48,13 @@ export default function Employees() {
 
   }
 
-  const classes = useStyles();
+  useEffect(() => {
+    const callApi = async () => {
+      const workerArray = await getUsers();
+      setWorker({ list: workerArray });
+    }
+    callApi();
+  }, []);
 
   return (
     <Grid container xl className={classes.root}>

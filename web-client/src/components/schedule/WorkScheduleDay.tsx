@@ -9,6 +9,7 @@ import { Card } from '@material-ui/core';
 import { PlaningDay } from '../../model/Calendar';
 import { DraggableWorker, DraggableWorkerProps } from './DraggableWorker';
 import { ItemTypes } from '../../utils/ItemTypes';
+import { v4 as uuid } from 'uuid';
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -19,16 +20,16 @@ const useStyles = makeStyles((theme: Theme) =>
       width: '100%',
     },
     paper: {
-      height: 200,
-      width: 200,
-    },
-    paperGray: {
-      height: 200,
-      width: 200,
-      backgroundColor: '#364150',
+      display: 'inline-flex',
+      flexDirection: 'column',
+      width: '100%',
+      padding: '3px',
     },
     subPaper: {
-      height: 60,
+      height: '60px',
+      display: 'inline-flex',
+      flexDirection: 'column',
+      padding: '3px',
     },
   }),
 );
@@ -80,8 +81,7 @@ export const WorkingDay: FunctionComponent<PlaningDayProps> = (props) => {
 
   useEffect(() => {
     props.updateParent(planingDay, props.index);
-  }, [planingDay]);
-
+  }, [planingDay])
 
   const handleDrop = (item: any, target: string) => {
     if (target === 'morning') {
@@ -136,22 +136,28 @@ export const WorkingDay: FunctionComponent<PlaningDayProps> = (props) => {
     <Card  className={classes.paper}>
       <span>{props.day.day}</span>
       <Divider />
-      <div ref={dropMorning} className={classes.subPaper}>
-        {planingDay.morning.map((value, index) => (
-          <DraggableWorker name={value} type={ItemTypes.WORKER} isDropped={true} onDelete={() => handleDelete(value, 'morning')} />
+      <div ref={dropMorning} className={classes.paper}>
+        <div className={classes.subPaper}>
+        {planingDay.morning.map((value) => (
+          <DraggableWorker key={uuid()} name={value} type={ItemTypes.WORKER} isDropped={true} onDelete={(value) => handleDelete(value, 'morning')} />
         ))}
+        </div>
       </div>
       <Divider />
-      <div ref={dropAfternoon} className={classes.subPaper}>
-        {planingDay.afternoon.map((value, index) => (
-          <DraggableWorker name={value} type={ItemTypes.WORKER} isDropped={true} onDelete={() => handleDelete(value, 'afternoon')} />
+      <div ref={dropAfternoon} className={classes.paper}>
+       <div className={classes.subPaper}>
+        {planingDay.afternoon.map((value) => (
+          <DraggableWorker key={uuid()} name={value} type={ItemTypes.WORKER} isDropped={true} onDelete={(value) => handleDelete(value, 'afternoon')} />
         ))}
+        </div>
       </div>
       <Divider />
-      <div ref={dropNight} className={classes.subPaper}>
-        {planingDay.night.map((value, index) => (
-          <DraggableWorker name={value} type={ItemTypes.WORKER} isDropped={true} onDelete={() => handleDelete(value, 'night')} />
+      <div ref={dropNight} className={classes.paper}>
+       <div className={classes.subPaper}>
+        {planingDay.night.map((value) => (
+          <DraggableWorker key={uuid()} name={value} type={ItemTypes.WORKER} isDropped={true} onDelete={(value) => handleDelete(value, 'night')} />
         ))}
+        </div>
       </div>
     </Card>
   );

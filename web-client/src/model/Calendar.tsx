@@ -2,7 +2,7 @@
 export interface PlaningCalendar {
     year:number;
     month:number;
-    days:Array<PlaningDay>;
+    days:PlaningDay[];
     metadata:CalendarMetadata;
 }
 

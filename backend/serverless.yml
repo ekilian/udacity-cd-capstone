@@ -22,10 +22,9 @@ provider:
     minimumCompressionSize: 1024 # Enable gzip compression for responses > 1 KB
   environment:
     AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
-    WORK_CALENDAR_TABLE: WorkCalendarTable-${self:provider.stage}
+    SCHEDULE_TABLE: WorkScheduleTable-${self:provider.stage}
   cognito:
     USER_POOL_ID: ${self:provider.region}_kwBneZOcU
-
 
 custom:
   webpack:
@@ -45,39 +44,59 @@ custom:
       inMemory: true
       migrate: true
 
-
 functions:
-  # GetWorkCalendar:
-  #   handler: src/http/lambda/calendar/getWorkCalendar.handler
-  #   events:
-  #     - http:
-  #         method: get
-  #         path: /calendar/{year}/{month}
-  #         cors: true
+  GetWorkSchedule:
+    handler: src/http/lambda/schedule/getWorkSchedule.handler
+    events:
+      - http:
+          method: get
+          path: /schedule/{year}/{month}
+          cors: true
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+          - dynamodb:GetItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.SCHEDULE_TABLE}
 
-  # CreateWorkCalendar:
-  #   handler: src/http/lambda/calendar/createWorkCalendarhandler
-  #   events:
-  #     - http:
-  #         method: patch
-  #         path: /calendar/{year}/{month}
-  #         cors: true
+  CreateWorkSchedule:
+    handler: src/http/lambda/schedule/createWorkSchedule.handler
+    events:
+      - http:
+          method: post
+          path: /schedule
+          cors: true
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.SCHEDULE_TABLE}
 
-  # UpdateWorkCalendar:
-  #   handler: src/http/lambda/calendar/updateWorkCalendar.handler
-  #   events:
-  #     - http:
-  #         method: patch
-  #         path: /calendar/{year}/{month}
-  #         cors: true
+  UpdateWorkSchedule:
+    handler: src/http/lambda/schedule/updateWorkSchedule.handler
+    events:
+      - http:
+          method: patch
+          path: /schedule/{year}/{month}
+          cors: true
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.SCHEDULE_TABLE}
 
-  # DeleteWorkCalendar:
-  #   handler: src/http/lambda/calendar/deleteWorkCalendar.handler
-  #   events:
-  #     - http:
-  #         method: delete
-  #         path: /calendar/{year}/{month}
-  #         cors: true
+  DeleteWorkSchedule:
+    handler: src/http/lambda/schedule/deleteWorkSchedule.handler
+    events:
+      - http:
+          method: delete
+          path: /schedule/{year}/{month}
+          cors: true
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:DeleteItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.SCHEDULE_TABLE}
 
   GetUsers:
     handler: src/http/lambda/users/getUsers.handler

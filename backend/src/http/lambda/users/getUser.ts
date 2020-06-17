@@ -6,7 +6,7 @@ import { createLogger } from '../../../utils/logger';
 const cognitoClient = new AWS.CognitoIdentityServiceProvider()
 const logger = createLogger('GetUser');
 
-// TODO - Implement
+// FIXME - Refactor
 // TODO - Doc me
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   logger.info('Processing event: ', event);

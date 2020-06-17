@@ -1,5 +1,5 @@
 import React from 'react';
-import { Switch, Route, useHistory } from 'react-router-dom'
+import { Switch, Route } from 'react-router-dom'
 
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
@@ -7,17 +7,16 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import Drawer from '@material-ui/core/Drawer';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
-import List from '@material-ui/core/List';
 import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
 import IconButton from '@material-ui/core/IconButton';
 import Container from '@material-ui/core/Container';
 import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
-import { mainListItems, userListItems } from './listItems';
+import { DashboardMenu } from './DashboardMenu';
 import {Lock, LockOpenRounded} from '@material-ui/icons'
 
-import WorkCalendar from '../schedule/WorkSchedule';
+import WorkSchedule from '../schedule/WorkSchedule';
 import Employees from '../users/Employees';
 import { IAuthContext, useAppContext } from '../../context/context';
 import { EditUser } from '../users/EditUser';
@@ -105,11 +104,9 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function Dashboard() {
-  const history = useHistory();
   const authContext:IAuthContext = useAppContext();
   const classes = useStyles();
   const [open, setOpen] = React.useState(true);
-  //const location = useLocation();
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -167,15 +164,13 @@ export default function Dashboard() {
             </IconButton>
           </div>
           <Divider />
-          <List>{mainListItems}</List>
-          <Divider />
-          <List>{userListItems}</List>
+          <DashboardMenu />
         </Drawer>
         <main className={classes.content}>
           <div className={classes.appBarSpacer} />
           <Container maxWidth="xl" className={classes.container}>
             <Switch>
-              <Route exact path="/workcalendar" component={WorkCalendar} />
+              <Route exact path="/schedule" component={WorkSchedule} />
               <Route exact path="/employees" component={Employees} />
               {/* <Route exact path="/login" component={Login} /> */}
               <Route exact path="/edituser" component={EditUser} />

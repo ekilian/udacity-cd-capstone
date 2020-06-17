@@ -1,5 +1,5 @@
 Resources:
-  WorkCalendarTable:
+  WorkScheduleTable:
     Type: AWS::DynamoDB::Table
     Properties:
       AttributeDefinitions:
@@ -13,4 +13,11 @@ Resources:
         - AttributeName: month
           KeyType: RANGE
       BillingMode: PAY_PER_REQUEST
-      TableName: ${self:provider.environment.WORK_CALENDAR_TABLE}
+      TableName: ${self:provider.environment.SCHEDULE_TABLE}
+
+
+# Print out the Id of the User Pool that is created
+Outputs:
+  DynamoDbTable:
+    Value:
+      Ref: WorkScheduleTable
