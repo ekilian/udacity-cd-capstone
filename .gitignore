@@ -2,8 +2,10 @@
 node_modules
 jspm_packages
 
+
 # Serverless directories
 .serverless
+.dynamodb
 
 # Webpack directories
 .webpack
@@ -11,3 +13,4 @@ jspm_packages
 TODO
 *.code-workspace
 /example-json/
+set_env.sh

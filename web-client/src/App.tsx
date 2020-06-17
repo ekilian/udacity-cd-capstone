@@ -1,23 +1,22 @@
-import React from 'react';
-import { Switch, Route } from 'react-router-dom'
-
+import React, { useState } from 'react';
+import { BrowserRouter} from 'react-router-dom'
 import './App.css';
 
 import Dashboard from './components/dashboard/Dashboard';
-import Employees from './components/employees/Employees';
-import WorkCalendar from './components/calendar/WorkCalendar';
+import { AppContext } from './context/context';
 
 
 function App() {
-  return (
-    <div className="App">
-      <Dashboard />
+  const [isAuthenticated, userHasAuthenticated] = useState(false);
 
-      <Switch>
-        <Route exact path="/workcalendar" component={WorkCalendar} />
-        <Route exact path="/employees" component={Employees} />
-      </Switch>
-    </div>
+  return (
+    <BrowserRouter>
+      <div className="App">
+        <AppContext.Provider value={{ isAuthenticated, userHasAuthenticated }}>
+          <Dashboard />
+        </AppContext.Provider>
+      </div>
+    </BrowserRouter>
   );
 }
 

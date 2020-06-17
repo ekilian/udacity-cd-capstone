@@ -4,15 +4,12 @@ service:
 #app: your-app-name
 #org: your-org-name
 
-custom:
-  webpack:
-    webpackConfig: ./webpack.config.js
-    includeModules: true
-
 # Add the serverless-webpack plugin
 plugins:
   - serverless-webpack
   - serverless-iam-roles-per-function
+  - serverless-offline
+  - serverless-dynamodb-local
 
 provider:
   name: aws
@@ -25,66 +22,151 @@ provider:
     minimumCompressionSize: 1024 # Enable gzip compression for responses > 1 KB
   environment:
     AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
-    WORK_CALENDAR_TABLE: WorkCalendarTable-${self:provider.stage}
+    SCHEDULE_TABLE: WorkScheduleTable-${self:provider.stage}
+  cognito:
+    USER_POOL_ID: ${self:provider.region}_kwBneZOcU
+
+custom:
+  webpack:
+    webpackConfig: ./webpack.config.js
+    includeModules:
+      forceExclude:
+        - aws-sdk
+
+  serverless-offline:
+    httpPort: 4000
+
+  dynamodb:
+    stages:
+      - dev
+    start:
+      port: 8000
+      inMemory: true
+      migrate: true
 
 functions:
-  GetWorkCalendar:
-    handler: getWorkCalendar.handler
+  GetWorkSchedule:
+    handler: src/http/lambda/schedule/getWorkSchedule.handler
     events:
       - http:
           method: get
-          path: /calendar/{year}/{month}
+          path: /schedule/{year}/{month}
           cors: true
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+          - dynamodb:GetItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.SCHEDULE_TABLE}
 
-  CreateWorkCalendar:
-    handler: createWorkCalendarhandler
+  CreateWorkSchedule:
+    handler: src/http/lambda/schedule/createWorkSchedule.handler
+    events:
+      - http:
+          method: post
+          path: /schedule
+          cors: true
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.SCHEDULE_TABLE}
+
+  UpdateWorkSchedule:
+    handler: src/http/lambda/schedule/updateWorkSchedule.handler
     events:
       - http:
           method: patch
-          path: /calendar/{year}/{month}
+          path: /schedule/{year}/{month}
           cors: true
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.SCHEDULE_TABLE}
 
-  UpdateWorkCalendar:
-    handler: updateWorkCalendar.handler
-    events:
-      - http:
-          method: patch
-          path: /calendar/{year}/{month}
-          cors: true
-
-  DeleteWorkCalendar:
-    handler: deleteWorkCalendar.handler
+  DeleteWorkSchedule:
+    handler: src/http/lambda/schedule/deleteWorkSchedule.handler
     events:
       - http:
           method: delete
-          path: /calendar/{year}/{month}
+          path: /schedule/{year}/{month}
           cors: true
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:DeleteItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.SCHEDULE_TABLE}
+
+  GetUsers:
+    handler: src/http/lambda/users/getUsers.handler
+    events:
+      - http:
+          method: get
+          path: /users
+          cors: true
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - cognito-idp:ListUsers
+        Resource: arn:aws:cognito-idp:${self:provider.region}:*:userpool/${self:provider.cognito.USER_POOL_ID}
+
+  GetUser:
+    handler: src/http/lambda/users/getUser.handler
+    events:
+      - http:
+          method: get
+          path: /users/{userId}
+          cors: true
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - cognito-idp:AdminGetUser
+        Resource: arn:aws:cognito-idp:${self:provider.region}:*:userpool/${self:provider.cognito.USER_POOL_ID}
+
+  CreateUser:
+    handler: src/http/lambda/users/createUser.handler
+    events:
+      - http:
+          method: post
+          path: /users
+          cors: true
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - cognito-idp:AdminCreateUser
+        Resource: arn:aws:cognito-idp:${self:provider.region}:*:userpool/${self:provider.cognito.USER_POOL_ID}
+
+  EditUser:
+    handler: src/http/lambda/users/editUser.handler
+    events:
+      - http:
+          method: patch
+          path: /users/{userId}
+          cors: true
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - cognito-idp:UpdateUser
+        Resource: arn:aws:cognito-idp:${self:provider.region}:*:userpool/${self:provider.cognito.USER_POOL_ID}
+
+  DeleteUser:
+    handler: src/http/lambda/users/deleteUser.handler
+    events:
+      - http:
+          method: delete
+          path: /users/{userId}
+          cors: true
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - cognito-idp:AdminDeleteUser
+        Resource: arn:aws:cognito-idp:${self:provider.region}:*:userpool/${self:provider.cognito.USER_POOL_ID}
 
 resources:
-  Resources:
-    GatewayResponseDefault4XX:
-      Type: AWS::ApiGateway::GatewayResponse
-      Properties:
-        ResponseParameters:
-          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
-          gatewayresponse.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-          gatewayresponse.header.Access-Control-Allow-Methods: "'GET,OPTIONS,POST'"
-        ResponseType: DEFAULT_4XX
-        RestApiId:
-          Ref: ApiGatewayRestApi
-
-    WorkCalendarTable:
-      Type: AWS::DynamoDB::Table
-      Properties:
-        AttributeDefinitions:
-          - AttributeName: year
-            AttributeType: N
-          - AttributeName: month
-            AttributeType: N
-        KeySchema:
-          - AttributeName: year
-            KeyType: HASH
-          - AttributeName: month
-            KeyType: RANGE
-        BillingMode: PAY_PER_REQUEST
-        TableName: ${self:provider.environment.WORK_CALENDAR_TABLE}
+  # API Gateway
+  - ${file(resources/api-gateway.yml)}
+  # Cognito
+  - ${file(resources/cognito.yml)}
+  # DynamoDB
+  - ${file(resources/dynamodb.yml)}

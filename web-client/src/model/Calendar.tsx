@@ -2,16 +2,16 @@
 export interface PlaningCalendar {
     year:number;
     month:number;
-    days:Array<PlaningDay>;
+    days:PlaningDay[];
     metadata:CalendarMetadata;
 }
 
 // Representing one day in a planing calendar.
 export interface PlaningDay {
     day:number;
-    morning?:string[];
+    morning:string[];
     afternoon:string[];
-    night?:string[];
+    night:string[];
     free?:string[];
     active:boolean;
 }

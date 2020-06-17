@@ -14,7 +14,9 @@ export const createWorkingPlan = (year: number, month: number):PlaningCalendar =
         let planDay = {} as PlaningDay;
         planDay.day = element;
         planDay.active = true;
-        planDay.afternoon = ['Gloria', 'Raul'];
+        planDay.morning = [];
+        planDay.afternoon = [];
+        planDay.night = [];
         result.days.push(planDay);
     });
 
@@ -25,7 +27,9 @@ export const createWorkingPlan = (year: number, month: number):PlaningCalendar =
         let planDay = {} as PlaningDay;
         planDay.day = -1;
         planDay.active = false;
-        planDay.afternoon = new Array();
+        planDay.morning = [];
+        planDay.afternoon = [];
+        planDay.night = [];
         result.days.unshift(planDay);
     }
 
@@ -36,7 +40,9 @@ export const createWorkingPlan = (year: number, month: number):PlaningCalendar =
             let planDay = {} as PlaningDay;
             planDay.day = -1;
             planDay.active = false;
-            planDay.afternoon = new Array();
+            planDay.morning = [];
+            planDay.afternoon = [];
+            planDay.night = [];
             result.days.push(planDay);
         }
     }
