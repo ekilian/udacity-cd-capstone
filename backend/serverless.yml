@@ -109,7 +109,7 @@ functions:
       - Effect: Allow
         Action:
           - cognito-idp:ListUsers
-        Resource: arn:aws:cognito-idp:${self:provider.region}:*:userpool/${self:provider.cognito.USER_POOL_ID}
+        Resource: arn:aws:cognito-idp:${self:provider.region}:*:userpool/${self:provider.environment.USER_POOL_ID}
 
   GetUser:
     handler: src/http/lambda/users/getUser.handler
@@ -122,7 +122,7 @@ functions:
       - Effect: Allow
         Action:
           - cognito-idp:AdminGetUser
-        Resource: arn:aws:cognito-idp:${self:provider.region}:*:userpool/${self:provider.cognito.USER_POOL_ID}
+        Resource: arn:aws:cognito-idp:${self:provider.region}:*:userpool/${self:provider.environment.USER_POOL_ID}
 
   CreateUser:
     handler: src/http/lambda/users/createUser.handler
@@ -135,7 +135,7 @@ functions:
       - Effect: Allow
         Action:
           - cognito-idp:AdminCreateUser
-        Resource: arn:aws:cognito-idp:${self:provider.region}:*:userpool/${self:provider.cognito.USER_POOL_ID}
+        Resource: arn:aws:cognito-idp:${self:provider.region}:*:userpool/${self:provider.environment.USER_POOL_ID}
 
   EditUser:
     handler: src/http/lambda/users/editUser.handler
@@ -148,7 +148,7 @@ functions:
       - Effect: Allow
         Action:
           - cognito-idp:UpdateUser
-        Resource: arn:aws:cognito-idp:${self:provider.region}:*:userpool/${self:provider.cognito.USER_POOL_ID}
+        Resource: arn:aws:cognito-idp:${self:provider.region}:*:userpool/${self:provider.environment.USER_POOL_ID}
 
   DeleteUser:
     handler: src/http/lambda/users/deleteUser.handler
@@ -161,7 +161,7 @@ functions:
       - Effect: Allow
         Action:
           - cognito-idp:AdminDeleteUser
-        Resource: arn:aws:cognito-idp:${self:provider.region}:*:userpool/${self:provider.cognito.USER_POOL_ID}
+        Resource: arn:aws:cognito-idp:${self:provider.region}:*:userpool/${self:provider.environment.USER_POOL_ID}
 
 resources:
   # API Gateway
