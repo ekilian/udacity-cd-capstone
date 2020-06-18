@@ -23,7 +23,7 @@ provider:
   environment:
     AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
     SCHEDULE_TABLE: WorkScheduleTable-${self:provider.stage}
-  cognito:
+    AWS_REGION: ${opt:region}
     USER_POOL_ID: ${self:provider.region}_kwBneZOcU
 
 custom:

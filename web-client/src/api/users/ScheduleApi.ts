@@ -4,7 +4,7 @@ import config from '../../config';
 
 
 export const getWorkSchedule = async (year:number, month:number):Promise<PlaningCalendar> => {
-  const result = await axios.get(`${config.apiGateway.URL}/schedule/${year}/${month}`);
+  const result = await axios.get(`${config.apiGateway.ENDPOINT_URL}/schedule/${year}/${month}`);
   let response;
   if(result.data !== '') {
     response = result.data;
@@ -15,12 +15,12 @@ export const getWorkSchedule = async (year:number, month:number):Promise<Planing
 }
 
 export const saveWorkSchedule = async (schedule:PlaningCalendar):Promise<PlaningCalendar> => {
-  await axios.post(`${config.apiGateway.URL}/schedule`, schedule);
+  await axios.post(`${config.apiGateway.ENDPOINT_URL}/schedule`, schedule);
   return {} as PlaningCalendar;
 }
 
 export const deleteWorkSchedule = async (year:number, month:number):Promise<PlaningCalendar> => {
-  await axios.delete(`${config.apiGateway.URL}/schedule/${year}/${month}`);
+  await axios.delete(`${config.apiGateway.ENDPOINT_URL}/schedule/${year}/${month}`);
   return {
     days: [] as PlaningDay[]
   } as PlaningCalendar;

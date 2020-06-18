@@ -37,6 +37,7 @@ const useStyles = makeStyles((theme: Theme) =>
 export interface PlaningDayProps {
   index:number
   day: PlaningDay,
+  isEditable: boolean,
   updateParent: (updatedDay:PlaningDay, index:number) => void,
 }
 
@@ -144,7 +145,9 @@ export const WorkingDay: FunctionComponent<PlaningDayProps> = (props) => {
       <div ref={dropMorning} className={classes.paper}>
         <div className={classes.subPaper}>
         {planingDay.morning.map((value) => (
-          <DraggableWorker key={uuid()} name={value} type={ItemTypes.WORKER} isDropped={true} onDelete={(value) => handleDelete(value, 'morning')} />
+          <DraggableWorker key={uuid()} name={value} type={ItemTypes.WORKER} isDropped={true}
+                          isEditable={props.isEditable}
+                          onDelete={(value) => handleDelete(value, 'morning')} />
         ))}
         </div>
       </div>
@@ -152,7 +155,9 @@ export const WorkingDay: FunctionComponent<PlaningDayProps> = (props) => {
       <div ref={dropAfternoon} className={classes.paper}>
        <div className={classes.subPaper}>
         {planingDay.afternoon.map((value) => (
-          <DraggableWorker key={uuid()} name={value} type={ItemTypes.WORKER} isDropped={true} onDelete={(value) => handleDelete(value, 'afternoon')} />
+          <DraggableWorker key={uuid()} name={value} type={ItemTypes.WORKER} isDropped={true}
+                            isEditable={props.isEditable}
+                            onDelete={(value) => handleDelete(value, 'afternoon')} />
         ))}
         </div>
       </div>
@@ -160,7 +165,9 @@ export const WorkingDay: FunctionComponent<PlaningDayProps> = (props) => {
       <div ref={dropNight} className={classes.paper}>
        <div className={classes.subPaper}>
         {planingDay.night.map((value) => (
-          <DraggableWorker key={uuid()} name={value} type={ItemTypes.WORKER} isDropped={true} onDelete={(value) => handleDelete(value, 'night')} />
+          <DraggableWorker key={uuid()} name={value} type={ItemTypes.WORKER} isDropped={true}
+                          isEditable={props.isEditable}
+                          onDelete={(value) => handleDelete(value, 'night')} />
         ))}
         </div>
       </div>

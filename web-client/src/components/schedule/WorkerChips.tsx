@@ -23,7 +23,11 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 );
 
-const WorkerChips: React.FC<{}> = () => {
+export interface WorkerChipsProps {
+  isEditable:boolean
+}
+
+const WorkerChips: React.FC<WorkerChipsProps> = (props) => {
   const classes = useStyles();
 
   const [worker, setWorker] = useState({list: [] as User[]});
@@ -36,13 +40,19 @@ const WorkerChips: React.FC<{}> = () => {
     callApi();
   }, []);
 
-  return (
-    <div className={classes.fab} >
-      {worker.list.map((value) => (
-        <DraggableWorker key={uuid()} name={value.nickname} type={ItemTypes.WORKER} isDropped={false}/>
-      ))}
-    </div>
-  );
+  if(props.isEditable) {
+    return (
+      <div className={classes.fab} >
+        {worker.list.map((value) => (
+          <DraggableWorker key={uuid()} name={value.nickname} type={ItemTypes.WORKER} isDropped={false} isEditable={true}/>
+        ))}
+      </div>
+    );
+  } else {
+    return (
+      <div></div>
+    );
+  }
 }
 
 export default WorkerChips;

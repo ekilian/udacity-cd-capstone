@@ -61,6 +61,9 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 );
 
+/**
+ * TODO Docme
+ */
 const WorkSchedule: React.FC<{}> = () => {
   const [spacing] = React.useState<GridSpacing>(2);
   const classes = useStyles();
@@ -83,11 +86,9 @@ const WorkSchedule: React.FC<{}> = () => {
 
   const defineEditability = (month: string, year: string) => {
     const date = new Date();
-    if (parseInt(month) < date.getMonth() + 1
-      || parseInt(month) > date.getMonth() + 2
-      || parseInt(year) !== date.getFullYear()) {
-      setEditable(false);
-    }
+    setEditable(!((parseInt(month) < date.getMonth() + 1
+                || parseInt(month) > date.getMonth() + 2)
+                && !(parseInt(year) !== date.getFullYear())));
   }
 
   const handleYearChange = (event: React.ChangeEvent<{ value: unknown }>) => {
@@ -196,14 +197,15 @@ const WorkSchedule: React.FC<{}> = () => {
             <Grid key={index} item className={classes.item}>
               {value.active
                 ? <WorkingDay index={index} day={value}
-                  updateParent={(value, index) => updateParent(value, index)} />
+                    isEditable={isEditable}
+                    updateParent={(value, index) => updateParent(value, index)} />
                 : <Card className={classes.paperGray} />
               }
             </Grid>
           ))}
         </Grid>
       </Grid>
-      <WorkerChips />
+      <WorkerChips isEditable={isEditable} />
       <ScheduleActionButtons key="fab"
               isEditable={isEditable}
               isSaveActive={scheduleChanged}
