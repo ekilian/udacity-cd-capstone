@@ -5,7 +5,7 @@ import { User } from '../../model/User';
 
 
 export const getUsers = async (): Promise<User[]> => {
-  const result = await axios.get(config.apiGateway.URL + '/users');
+  const result = await axios.get(config.apiGateway.ENDPOINT_URL + '/users');
   let workerArray: User[] = [];
   result.data.forEach((element: any) => {
     let user: User = {
@@ -68,7 +68,7 @@ export const createUser = async (userToCreate: EditUserProps): Promise<boolean> 
   }
 
   try {
-    await axios.post(`${config.apiGateway.URL}/users`, params);
+    await axios.post(`${config.apiGateway.ENDPOINT_URL}/users`, params);
     return true;
   } catch(error) {
     console.log(error);
@@ -80,7 +80,7 @@ export const createUser = async (userToCreate: EditUserProps): Promise<boolean> 
 export const deleteUser = async (username:string): Promise<boolean> => {
   console.log('delete:', username)
   try {
-    await axios.delete(`${config.apiGateway.URL}/users/${username}`);
+    await axios.delete(`${config.apiGateway.ENDPOINT_URL}/users/${username}`);
     return true;
   } catch(error) {
     console.log(error);

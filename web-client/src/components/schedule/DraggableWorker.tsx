@@ -6,11 +6,19 @@ export interface DraggableWorkerProps {
   name:string,
   type:string,
   isDropped:boolean,
+  isEditable:boolean,
   onDelete?:(name:string) => void
 }
 
+const dragStyle: React.CSSProperties = {
+  cursor: 'move',
+  width: '90px'
+}
+const margin: React.CSSProperties = {
+  marginBottom: '2px'
+}
 
-export const DraggableWorker: FunctionComponent<DraggableWorkerProps> = ({name, type, isDropped, onDelete}) => {
+export const DraggableWorker: React.FC<DraggableWorkerProps> = ({name, type, isDropped, isEditable, onDelete}) => {
 
   const [{}, drag] = useDrag({
     item: { name, type },
@@ -19,22 +27,39 @@ export const DraggableWorker: FunctionComponent<DraggableWorkerProps> = ({name, 
     }),
   })
 
-  if(isDropped) {
+  if(isDropped && isEditable) {
     return (
-      <Chip ref={drag}
+      <div style={margin}>
+        <Chip ref={drag}
+            variant="outlined"
+            color="primary"
+            size="small"
+            label={name}
+            onDelete={onDelete}
+            style={dragStyle} />
+      </div>
+    )
+  } else if(isDropped && !isEditable) {
+    return (
+      <div style={margin}>
+        <Chip
           variant="outlined"
           color="primary"
           size="small"
           label={name}
-          onDelete={onDelete} />
+        />
+      </div>
     )
   } else {
     return (
-      <Chip ref={drag}
-        variant="outlined"
-        color="primary"
-        size="small"
-        label={name} />
+      <div style={margin}>
+        <Chip ref={drag}
+          variant="outlined"
+          color="primary"
+          size="small"
+          label={name}
+          style={dragStyle} />
+      </div>
     )
   }
 
