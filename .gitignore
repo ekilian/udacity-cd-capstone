@@ -2,7 +2,6 @@
 node_modules
 jspm_packages
 
-
 # Serverless directories
 .serverless
 .dynamodb
@@ -14,3 +13,4 @@ TODO
 *.code-workspace
 /example-json/
 set_env.sh
+build
