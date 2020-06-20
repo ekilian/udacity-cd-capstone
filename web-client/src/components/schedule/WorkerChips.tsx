@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
-import { Grid } from '@material-ui/core';
 
 import { v4 as uuid } from 'uuid';
 
@@ -34,7 +33,13 @@ const WorkerChips: React.FC<WorkerChipsProps> = (props) => {
 
   useEffect(() => {
     const callApi = async () => {
-      const workerArray = await getUsers();
+      const userArray = await getUsers();
+      let workerArray:User[] = [];
+      userArray.forEach((element) => {
+        if(element.customrole === 'Worker') {
+          workerArray.push(element);
+        }
+      });
       setWorker({ list: workerArray });
     }
     callApi();
@@ -44,7 +49,7 @@ const WorkerChips: React.FC<WorkerChipsProps> = (props) => {
     return (
       <div className={classes.fab} >
         {worker.list.map((value) => (
-          <DraggableWorker key={uuid()} name={value.nickname} type={ItemTypes.WORKER} isDropped={false} isEditable={true}/>
+          <DraggableWorker key={uuid()} name={value.username} type={ItemTypes.WORKER} isDropped={false} isEditable={true}/>
         ))}
       </div>
     );

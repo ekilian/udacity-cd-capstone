@@ -13,25 +13,24 @@ const logger = createLogger('EditUser');
 export const handler: APIGatewayProxyHandler = middy(async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   logger.info('Processing event: ', event);
 
-  //TODO: Read Body
-  const userName:string = event.pathParameters.userId;
+  const parsedBody:any = JSON.parse(event.body);
 
   var params = {
-    UserPoolId: 'us-east-2_gSbjOa8i9',
-    Username: userName,
-   /*  UserAttributes: [
-      {
-        Name: 'name',
-        Value: 'STRING_VALUE'
-      },
-    ] */
+    UserPoolId: parsedBody.UserPoolId,
+    Username: parsedBody.Username,
+    UserAttributes: parsedBody.UserAttributes
   };
+  //Set updated_at
+  params.UserAttributes.push({
+    Name: "updated_at",
+    Value: new Date().getTime().toString()
+  })
 
   try {
-    const result = await cognitoClient.adminCreateUser(params).promise();
+    const result = await cognitoClient.adminUpdateUserAttributes(params).promise();
     return {
-      statusCode: 201,
-      body: JSON.stringify(result.User)
+      statusCode: 200,
+      body: JSON.stringify(result)
     }
   } catch(err) {
     logger.error(err);

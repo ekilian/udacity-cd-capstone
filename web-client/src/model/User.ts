@@ -1,12 +1,10 @@
 
 export interface User {
   username:string,
-  nickname:string,
-  name?:string,
-  surname?:string,
-  status?:string,
+  given_name?:string,
+  family_name?:string,
   address?:string,
-  phone?:string,
-  birthdate?:string
+  phone_number?:string,
+  email?:string
+  customrole?: string
 }
-

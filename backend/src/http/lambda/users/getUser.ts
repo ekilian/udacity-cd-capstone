@@ -1,5 +1,7 @@
 import { APIGatewayProxyHandler, APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import * as AWS from 'aws-sdk';
+import middy from '@middy/core'
+import cors from '@middy/http-cors'
 import { createLogger } from '../../../utils/logger';
 
 
@@ -8,14 +10,13 @@ const logger = createLogger('GetUser');
 
 // FIXME - Refactor
 // TODO - Doc me
-export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+export const handler: APIGatewayProxyHandler = middy(async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   logger.info('Processing event: ', event);
 
-  const userName:string = event.pathParameters.userId;
-
+  const userId = event.pathParameters.userId;
   var params = {
-    Username: userName,
-    UserPoolId: 'us-east-2_gSbjOa8i9'
+    UserPoolId: 'us-east-2_sJRdbCIjo',
+    Username: userId
   };
 
   try {
@@ -32,5 +33,4 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
     }
   }
 
-  return undefined;
-}
+}).use(cors())

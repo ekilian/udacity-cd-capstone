@@ -1,14 +1,11 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { List, ListItem, ListItemIcon, ListItemText, Divider } from '@material-ui/core';
 
 import DashboardIcon from '@material-ui/icons/Dashboard';
 import DateRangeIcon from '@material-ui/icons/DateRange';
 import PeopleIcon from '@material-ui/icons/People';
 import BarChartIcon from '@material-ui/icons/BarChart';
-import AssignmentIcon from '@material-ui/icons/Assignment';
-
-import { ListSubheader } from '@material-ui/core';
 
 
 export const DashboardMenu: React.FC<{}> = () => {
@@ -22,37 +19,11 @@ export const DashboardMenu: React.FC<{}> = () => {
       </ListItem>
       {scheduleLink()}
       {/* TODO: Rechte */}
-
+      {reportLink()}
       {usersLink()}
       <Divider />
-      <List>
-        <SubMenu />
-      </List>
     </List>
   );
-}
-
-const SubMenu: React.FC<{}> = () => {
-  const location = useLocation();
-
-  if (location.pathname === '/employees'
-      || location.pathname === '/edituser') {
-    return (
-      <div>
-        <ListSubheader>Employees</ListSubheader>
-        <ListItem button component={Link} to="/edituser">
-          <ListItemIcon>
-            <AssignmentIcon />
-          </ListItemIcon>
-          <ListItemText primary="Create User" />
-        </ListItem>
-      </div>
-    )
-  } else {
-    return (
-      <div />
-    );
-  }
 }
 
 const scheduleLink = () => {
@@ -79,7 +50,7 @@ const usersLink = () => {
 
 const reportLink = () => {
   return (
-    <ListItem button>
+    <ListItem button component={Link} to="/reports">
       <ListItemIcon>
         <BarChartIcon />
       </ListItemIcon>

@@ -9,7 +9,7 @@ import middy from '@middy/core';
 
 // FIXME Region from config
 const cognitoClient = new AWS.CognitoIdentityServiceProvider({
-  apiVersion: config.cognito.API_VERSION,
+  apiVersion: config.cognito.COGNITO_VERSION,
   region: "us-east-2"
 });
 const logger = createLogger('DeleteUser');
@@ -23,7 +23,7 @@ export const handler: APIGatewayProxyHandler = middy(async (event: APIGatewayPro
 
   // TODO ppol from config -> from env
   var params = {
-    UserPoolId: 'us-east-2_kwBneZOcU',
+    UserPoolId: 'us-east-2_sJRdbCIjo',
     Username: userName
   };
 

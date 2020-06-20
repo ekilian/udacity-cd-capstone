@@ -86,9 +86,8 @@ const WorkSchedule: React.FC<{}> = () => {
 
   const defineEditability = (month: string, year: string) => {
     const date = new Date();
-    setEditable(!((parseInt(month) < date.getMonth() + 1
-                || parseInt(month) > date.getMonth() + 2)
-                && !(parseInt(year) !== date.getFullYear())));
+    setEditable(parseInt(month) > date.getMonth()
+                && parseInt(year) === date.getFullYear());
   }
 
   const handleYearChange = (event: React.ChangeEvent<{ value: unknown }>) => {
@@ -109,12 +108,14 @@ const WorkSchedule: React.FC<{}> = () => {
   }
 
   const handleSave = async () => {
+    console.log('handleSave clicked')
     await saveWorkSchedule(workPlan);
     setScheduleChanged(false);
     setLoadedSchedule(true);
   }
 
   const handleDelete = async () => {
+    console.log('handleSave clicked')
     const result = await deleteWorkSchedule(parseInt(year), parseInt(month));
     setWorkPlan(result);
     setWorkPlan(createWorkingPlan(parseInt(year), parseInt(month)));

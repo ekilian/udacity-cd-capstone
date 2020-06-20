@@ -17,9 +17,9 @@ import { DashboardMenu } from './DashboardMenu';
 import {Lock, LockOpenRounded} from '@material-ui/icons'
 
 import WorkSchedule from '../schedule/WorkSchedule';
-import Employees from '../users/Employees';
+import Employees from '../users/Users';
 import { IAuthContext, useAppContext } from '../../context/context';
-import { EditUser } from '../users/EditUser';
+import SimpleBarChart from '../reports/Reports';
 
 
 const drawerWidth = 240;
@@ -172,8 +172,8 @@ export default function Dashboard() {
             <Switch>
               <Route exact path="/schedule" component={WorkSchedule} />
               <Route exact path="/employees" component={Employees} />
+              <Route exact path="/reports" component={SimpleBarChart} />
               {/* <Route exact path="/login" component={Login} /> */}
-              <Route exact path="/edituser" component={EditUser} />
             </Switch>
           </Container>
         </main>

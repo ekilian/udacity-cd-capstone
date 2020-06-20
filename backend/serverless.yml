@@ -23,8 +23,8 @@ provider:
   environment:
     AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
     SCHEDULE_TABLE: WorkScheduleTable-${self:provider.stage}
-    AWS_REGION: ${opt:region}
-    USER_POOL_ID: ${self:provider.region}_kwBneZOcU
+    REGION: ${opt:region}
+    USER_POOL_ID: ${self:provider.region}_sJRdbCIjo
 
 custom:
   webpack:
@@ -135,6 +135,7 @@ functions:
       - Effect: Allow
         Action:
           - cognito-idp:AdminCreateUser
+          - cognito-idp:AdminSetUserPassword
         Resource: arn:aws:cognito-idp:${self:provider.region}:*:userpool/${self:provider.environment.USER_POOL_ID}
 
   EditUser:
@@ -147,7 +148,7 @@ functions:
     iamRoleStatements:
       - Effect: Allow
         Action:
-          - cognito-idp:UpdateUser
+          - cognito-idp:AdminUpdateUserAttributes
         Resource: arn:aws:cognito-idp:${self:provider.region}:*:userpool/${self:provider.environment.USER_POOL_ID}
 
   DeleteUser:
