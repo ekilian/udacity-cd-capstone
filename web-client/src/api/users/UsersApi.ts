@@ -80,16 +80,19 @@ export const createUser = async (userToCreate: User): Promise<boolean> => {
         "Value": userToCreate.phone_number
       });
     } else {
-      userAttributes.push({
-        'Name': key,
-        "Value": value
-      });
+      if(key !== 'password' && key !== 'username') {
+        userAttributes.push({
+          'Name': key,
+          "Value": value
+        });
+      }
     }
   }
 
   const params = {
     "Username": userToCreate.username,
     "UserPoolId": config.cognito.USER_POOL_ID,
+    "Password": userToCreate.password,
     "UserAttributes": userAttributes
   }
 

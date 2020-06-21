@@ -10,7 +10,7 @@ import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import InputLabel from '@material-ui/core/InputLabel';
-import { Card } from '@material-ui/core';
+import { Card, Backdrop, CircularProgress } from '@material-ui/core';
 
 import ScheduleActionButtons from './ScheduleActionButtons';
 import { saveWorkSchedule, deleteWorkSchedule, getWorkSchedule } from '../../api/users/ScheduleApi';
@@ -19,6 +19,7 @@ import { WorkingDay } from './WorkScheduleDay';
 import { DAYS_OF_WEEK } from '../../utils/constants';
 import { PlaningDay, PlaningCalendar } from '../../model/Calendar';
 import WorkerChips from './WorkerChips';
+import ConfirmDialog from '../common/ConfirmDialog';
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -57,7 +58,11 @@ const useStyles = makeStyles((theme: Theme) =>
     workerDrag: {
       margin: theme.spacing(1),
       justifyContent: 'space-between',
-    }
+    },
+    backdrop: {
+      zIndex: theme.zIndex.drawer + 1,
+      color: '#fff',
+    },
   }),
 );
 
@@ -77,6 +82,8 @@ const WorkSchedule: React.FC<{}> = () => {
   const [scheduleChanged, setScheduleChanged] = useState(false);
   const [loadedSchedule, setLoadedSchedule] = useState(false);
   const [isEditable, setEditable] = useState(true);
+  const [backdropOpen, setBackdropOpen] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const handleChange = (event: React.ChangeEvent<{ value: unknown }>) => {
     const newMonth = event.target.value as string
@@ -108,23 +115,31 @@ const WorkSchedule: React.FC<{}> = () => {
   }
 
   const handleSave = async () => {
-    console.log('handleSave clicked')
+    setBackdropOpen(backdropOpen => !backdropOpen);
     await saveWorkSchedule(workPlan);
     setScheduleChanged(false);
     setLoadedSchedule(true);
+    setBackdropOpen(backdropOpen => !backdropOpen);
+  }
+
+  const confirmDelete = () => {
+    setConfirmOpen(confirmOpen => !confirmOpen);
   }
 
   const handleDelete = async () => {
-    console.log('handleSave clicked')
+    setConfirmOpen(confirmOpen => !confirmOpen);
+    setBackdropOpen(backdropOpen => !backdropOpen);
     const result = await deleteWorkSchedule(parseInt(year), parseInt(month));
     setWorkPlan(result);
     setWorkPlan(createWorkingPlan(parseInt(year), parseInt(month)));
     setScheduleChanged(false);
     setLoadedSchedule(false)
+    setBackdropOpen(backdropOpen => !backdropOpen);
   }
 
   useEffect(() => {
     const callApi = async () => {
+      setBackdropOpen(backdropOpen => !backdropOpen);
       const loadedSchedule = await getWorkSchedule(parseInt(year), parseInt(month));
       if(!loadedSchedule) {
         setWorkPlan({ days: [] as PlaningDay[] } as PlaningCalendar);
@@ -137,6 +152,7 @@ const WorkSchedule: React.FC<{}> = () => {
         setLoadedSchedule(true);
       }
       setScheduleChanged(false);
+      setBackdropOpen(backdropOpen => !backdropOpen);
     }
     callApi();
   }, [month, year]);
@@ -206,13 +222,17 @@ const WorkSchedule: React.FC<{}> = () => {
           ))}
         </Grid>
       </Grid>
+      <ConfirmDialog content="This will delete the current schedule. Do you want to continue?" open={confirmOpen} handleConfirm={handleDelete} handleCancel={() => setConfirmOpen(false)} />
+      <Backdrop className={classes.backdrop} open={backdropOpen}>
+        <CircularProgress color="inherit" />
+      </Backdrop>
       <WorkerChips isEditable={isEditable} />
       <ScheduleActionButtons key="fab"
               isEditable={isEditable}
               isSaveActive={scheduleChanged}
               isDeleteActive={loadedSchedule}
               handleSave={handleSave}
-              handleDelete={handleDelete} />
+              handleDelete={confirmDelete} />
     </DndProvider>
   );
 }

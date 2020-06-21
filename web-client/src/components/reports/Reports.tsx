@@ -4,7 +4,8 @@ import { getUsers } from '../../api/users/UsersApi';
 import { User } from '../../model/User';
 import { getWorkSchedule } from '../../api/users/ScheduleApi';
 import { PlaningCalendar } from '../../model/Calendar';
-import { Grid, FormControl, InputLabel, Select, MenuItem } from '@material-ui/core';
+import { Grid, FormControl, InputLabel, Select, MenuItem, Snackbar } from '@material-ui/core';
+import MuiAlert from '@material-ui/lab/Alert';
 
 
 export interface BarChartData {
@@ -13,28 +14,37 @@ export interface BarChartData {
 }
 
 const HOURS_PER_SHIFT: number = 8;
+const SNACKBAR_POSITION: any = { vertical: 'top', horizontal: 'right' }
 
 const SimpleBarChart: React.FC = () => {
   const initdata: BarChartData[] = [];
   const [data, setData] = React.useState(initdata);
+  const [alertOpen, setAlertOpen] = React.useState(false);
   const [month, setMonth] = React.useState((new Date().getMonth() + 1).toString());
   const [year, setYear] = React.useState(new Date().getFullYear().toString());
 
   useEffect(() => {
     const callApi = async () => {
       const loadedSchedule = await getWorkSchedule(parseInt(year), parseInt(month));
-      const userArray = await getUsers();
-      let workerArray: User[] = [];
-      userArray.forEach((element) => {
-        if (element.customrole === 'Worker') {
-          workerArray.push(element);
-        }
-      });
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      setData(buildData(loadedSchedule, workerArray));
+      if(loadedSchedule) {
+        const userArray = await getUsers();
+        let workerArray: User[] = [];
+        userArray.forEach((element) => {
+          if (element.customrole === 'Worker') {
+            workerArray.push(element);
+          }
+        });
+        setData(buildData(loadedSchedule, workerArray));
+      } else {
+        setAlertOpen(true);
+      }
     }
     callApi();
   }, [month, year]);
+
+  const handleClose = () => {
+    setAlertOpen(false);
+  };
 
   const buildData = (schedule: PlaningCalendar, workers: User[]): BarChartData[] => {
     let result: BarChartData[] = [];
@@ -131,7 +141,14 @@ const SimpleBarChart: React.FC = () => {
           <Bar dataKey="value" fill="#8884d8" barSize={40} />
         </BarChart>
       </Grid>
+      <Snackbar open={alertOpen} autoHideDuration={5000} onClose={handleClose} anchorOrigin={SNACKBAR_POSITION}
+              style={{ top: 75}}>
+        <MuiAlert severity="info" onClose={handleClose} variant="filled">
+          There is no data available for the choosen Month/Year.
+        </MuiAlert>
+      </Snackbar>
     </Grid>
+
   );
 }
 

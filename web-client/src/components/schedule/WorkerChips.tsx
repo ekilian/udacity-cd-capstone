@@ -13,10 +13,10 @@ const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     fab: {
       margin: 0,
-      top: 100,
+      top: 165,
       left: 'auto',
       bottom: 'auto',
-      right: 25,
+      right: 35,
       position: 'fixed',
     }
   }),
@@ -30,7 +30,6 @@ const WorkerChips: React.FC<WorkerChipsProps> = (props) => {
   const classes = useStyles();
 
   const [worker, setWorker] = useState({list: [] as User[]});
-
   useEffect(() => {
     const callApi = async () => {
       const userArray = await getUsers();

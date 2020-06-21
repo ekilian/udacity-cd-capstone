@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import clsx from 'clsx';
 
 import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
-import { Card, Button, Divider, Grid, Drawer } from '@material-ui/core';
+import { Card, Button, Divider, Grid, Drawer, Slide, Backdrop, CircularProgress } from '@material-ui/core';
 import { TextField, RadioGroup, FormControlLabel, Radio } from '@material-ui/core';
 import { Save, Delete, Edit, Close, Person, AlternateEmail, PhoneAndroid } from '@material-ui/icons'
 
@@ -17,16 +17,16 @@ const useStyles = makeStyles((theme: Theme) =>
       flexGrow: 1,
     },
     paperOffice: {
-      height: 250,
+      height: 300,
       width: 300,
       margin: 10,
       boxShadow: '0px 0px 8px 5px rgba(111, 240, 89, 0.6)',
     },
     paperWorker: {
-      height: 250,
-      width: 300,
+      height: 300,
+      width: 280,
       margin: 10,
-      boxShadow: '0px 1px 3px rgba(0, 0, 0, 0.05) inset, 0px 0px 8px 5px rgba(89, 142, 222, 0.6)',
+      boxShadow: '0px 0px 8px 5px rgba(89, 142, 222, 0.6)',
     },
     divider: {
       padding: 10,
@@ -43,6 +43,17 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     textField: {
       paddingBottom: '10px'
+    },
+    drawerFormOpen: {
+      flex: 25,
+      maxWidth: 300,
+    },
+    drawerFormClose: {
+      flex: 0,
+    },
+    backdrop: {
+      zIndex: theme.zIndex.drawer + 1,
+      color: '#fff',
     },
   }));
 
@@ -61,6 +72,7 @@ export default function Employees() {
 
   const [refresh, setRefresh] = React.useState(0);
   const [open, setOpen] = React.useState(false);
+  const [backdropOpen, setBackdropOpen] = React.useState(false);
   const [user, setUser] = React.useState(initUser);
   const [editMode, setEditMode] = React.useState(false);
   const [worker, setWorker] = useState({
@@ -87,6 +99,7 @@ export default function Employees() {
   }
 
   const handleSave = async (user: User): Promise<void> => {
+    setBackdropOpen(backdropOpen => !backdropOpen)
     if (editMode) {
       await editUser(user);
     } else {
@@ -94,6 +107,7 @@ export default function Employees() {
     }
     setRefresh(refresh => refresh + 1);
     setOpen(false);
+    setBackdropOpen(backdropOpen => !backdropOpen)
   }
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -118,80 +132,25 @@ export default function Employees() {
   }, [refresh]);
 
   return (
-    <Grid container xl className={classes.root} direction="row" justify="center">
-      <Grid container direction="row">
-        {worker.list.map((value) => (
-          <Card key={value.username} className={value.customrole === 'Office' ? classes.paperOffice : classes.paperWorker}>
-            <Grid container spacing={2} direction="column">
-              <Grid item>
-                {value.username}
-              </Grid>
-              <Divider />
-              <Grid item>
-                <div style={{
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center'
-                }}>
-                  <Person />
-                  <p>{value.given_name} {value.family_name}</p>
-                </div>
-              </Grid>
-                <Grid item>
-                  <AlternateEmail />{value.email}
-                </Grid>
-                <Grid item>
-                  <div style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center'
-                  }}>
-                    <PhoneAndroid />
-                    <p>{value.phone_number}</p>
-                  </div>
-                </Grid>
-              </Grid>
-              <Grid container spacing={2} justify="center">
-                <Grid item>
-                  <Button
-                    id="edit"
-                    variant="contained"
-                    color="primary"
-                    size="small"
-                    startIcon={<Delete />}
-                    onClick={() => handleDeleteUser(value)}>
-                    Delete
-                  </Button>
-                </Grid>
-                <Grid item>
-                  <Button
-                    id="delete"
-                    variant="contained"
-                    color="primary"
-                    size="small"
-                    startIcon={<Edit />}
-                    onClick={() => handleEditUser(value)}>
-                    Edit
-                  </Button>
-                </Grid>
-              </Grid>
-          </Card>
-        ))}
-      </Grid>
-          <Drawer
-            variant="persistent"
-            anchor="left"
-            open={open}
-            classes={{
-              paper: clsx(classes.drawerPaper),
-            }}
-          >
+    <Grid container className={classes.root} direction="row" justify="center">
+      <Grid container direction="column" className={open ? classes.drawerFormOpen : classes.drawerFormClose} alignItems="stretch">
+        <Slide direction="right" in={open} mountOnEnter unmountOnExit>
+          <div>
             <form className={classes.root} noValidate autoComplete="off">
               <Grid container xl spacing={2} direction="column">
                 <Grid item>
                   <TextField id="outlined-basic" label="Username" variant="outlined" name="username"
                     InputLabelProps={{ shrink: true }}
                     value={user.username}
+                    onChange={handleChange}
+                    disabled={editMode}
+                    required
+                  />
+                </Grid>
+                <Grid item>
+                  <TextField id="outlined-basic" label="Password" variant="outlined" name="password"
+                    InputLabelProps={{ shrink: true }}
+                    value={user.password}
                     onChange={handleChange}
                     disabled={editMode}
                     required
@@ -254,15 +213,85 @@ export default function Employees() {
                     color="primary"
                     size="small"
                     startIcon={<Close />}
-                    onClick={() => handleClose()}
-                  >
+                    onClick={() => handleClose()}>
                       Cancel
-                </Button>
+                  </Button>
                 </Grid>
               </Grid>
             </form>
-          </Drawer>
-          <UserActionButton isActive={!open} handleCreate={() => handleCreateUser()} />
+          </div>
+        </Slide>
+      </Grid>
+      <Grid container direction="row" style={{ flex: 75}}>
+      <Backdrop className={classes.backdrop} open={backdropOpen} onClick={handleClose}>
+        <CircularProgress color="inherit" />
+      </Backdrop>
+        {worker.list.map((value) => (
+          <Card key={value.username} className={value.customrole === 'Office' ? classes.paperOffice : classes.paperWorker}>
+            <Grid container spacing={2} direction="column">
+              <Grid item>
+                <p>{value.username}</p>
+              </Grid>
+              <Divider />
+              <Grid item>
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center'
+                }}>
+                  <Person />
+                  <p>{value.given_name} {value.family_name}</p>
+                </div>
+              </Grid>
+              <Grid item>
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center'
+                }}>
+                  <AlternateEmail />
+                  <p>{value.email}</p>
+                </div>
+              </Grid>
+              <Grid item>
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center'
+                }}>
+                  <PhoneAndroid />
+                  <p>{value.phone_number}</p>
+                </div>
+              </Grid>
+            </Grid>
+            <Grid container spacing={2} justify="center">
+              <Grid item>
+                <Button
+                  id="edit"
+                  variant="contained"
+                  color="primary"
+                  size="small"
+                  startIcon={<Delete />}
+                  onClick={() => handleDeleteUser(value)}>
+                  Delete
+                  </Button>
+              </Grid>
+              <Grid item>
+                <Button
+                  id="delete"
+                  variant="contained"
+                  color="primary"
+                  size="small"
+                  startIcon={<Edit />}
+                  onClick={() => handleEditUser(value)}>
+                  Edit
+                  </Button>
+              </Grid>
+            </Grid>
+          </Card>
+        ))}
+      </Grid>
+      <UserActionButton isActive={!open} handleCreate={() => handleCreateUser()} />
     </Grid>
   )
 }

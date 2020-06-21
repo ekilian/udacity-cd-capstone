@@ -1,6 +1,7 @@
 
 export interface User {
   username:string,
+  password?:string,
   given_name?:string,
   family_name?:string,
   address?:string,
