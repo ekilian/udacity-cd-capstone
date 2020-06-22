@@ -15,6 +15,7 @@ export const getWorkSchedule = async (year:number, month:number):Promise<Planing
 }
 
 export const saveWorkSchedule = async (schedule:PlaningCalendar):Promise<PlaningCalendar> => {
+  console.log(schedule)
   await axios.post(`${config.apiGateway.ENDPOINT_URL}/schedule`, schedule);
   return {} as PlaningCalendar;
 }

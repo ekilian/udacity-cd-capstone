@@ -1,11 +1,10 @@
 import { APIGatewayProxyHandler, APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import * as AWS from 'aws-sdk';
 import middy from '@middy/core'
 import cors from '@middy/http-cors'
 import { createLogger } from '../../../utils/logger';
+import { config } from '../../../config';
+import { adminGetUser } from '../../../cognito/accessCognito';
 
-
-const cognitoClient = new AWS.CognitoIdentityServiceProvider()
 const logger = createLogger('GetUser');
 
 // FIXME - Refactor
@@ -15,12 +14,12 @@ export const handler: APIGatewayProxyHandler = middy(async (event: APIGatewayPro
 
   const userId = event.pathParameters.userId;
   var params = {
-    UserPoolId: 'us-east-2_sJRdbCIjo',
+    UserPoolId: config.cognito.USER_POOL_ID,
     Username: userId
   };
 
   try {
-    const result = await cognitoClient.adminGetUser(params).promise();
+    const result = await adminGetUser(params);
     return {
       statusCode: 200,
       body: JSON.stringify(result.UserAttributes)

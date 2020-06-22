@@ -1,0 +1,71 @@
+GetUsers:
+  handler: src/http/lambda/users/getUsers.handler
+  events:
+    - http:
+        method: get
+        path: /users
+        cors: true
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - cognito-idp:ListUsers
+      Resource: arn:aws:cognito-idp:${self:provider.region}:*:userpool/${self:provider.environment.USER_POOL_ID}
+
+GetUser:
+  handler: src/http/lambda/users/getUser.handler
+  events:
+    - http:
+        method: get
+        path: /users/{userId}
+        cors: true
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - cognito-idp:AdminGetUser
+      Resource: arn:aws:cognito-idp:${self:provider.region}:*:userpool/${self:provider.environment.USER_POOL_ID}
+
+CreateUser:
+  handler: src/http/lambda/users/createUser.handler
+  events:
+    - http:
+        method: post
+        path: /users
+        cors: true
+        request:
+          schema:
+            application/json: ${file(src/http/validation/create-user-schema.json)}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - cognito-idp:AdminCreateUser
+        - cognito-idp:AdminSetUserPassword
+      Resource: arn:aws:cognito-idp:${self:provider.region}:*:userpool/${self:provider.environment.USER_POOL_ID}
+
+EditUser:
+  handler: src/http/lambda/users/editUser.handler
+  events:
+    - http:
+        method: patch
+        path: /users
+        cors: true
+        request:
+          schema:
+            application/json: ${file(src/http/validation/edit-user-schema.json)}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - cognito-idp:AdminUpdateUserAttributes
+      Resource: arn:aws:cognito-idp:${self:provider.region}:*:userpool/${self:provider.environment.USER_POOL_ID}
+
+DeleteUser:
+  handler: src/http/lambda/users/deleteUser.handler
+  events:
+    - http:
+        method: delete
+        path: /users/{userId}
+        cors: true
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - cognito-idp:AdminDeleteUser
+      Resource: arn:aws:cognito-idp:${self:provider.region}:*:userpool/${self:provider.environment.USER_POOL_ID}

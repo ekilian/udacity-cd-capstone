@@ -91,7 +91,6 @@ export const createUser = async (userToCreate: User): Promise<boolean> => {
 
   const params = {
     "Username": userToCreate.username,
-    "UserPoolId": config.cognito.USER_POOL_ID,
     "Password": userToCreate.password,
     "UserAttributes": userAttributes
   }
@@ -133,7 +132,6 @@ export const editUser = async (userToEdit: User): Promise<boolean> => {
 
   const params = {
     "Username": userToEdit.username,
-    "UserPoolId": config.cognito.USER_POOL_ID,
     "UserAttributes": userAttributes
   }
 

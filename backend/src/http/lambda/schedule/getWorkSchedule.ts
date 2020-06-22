@@ -4,7 +4,7 @@ import * as AWS from 'aws-sdk';
 import middy from '@middy/core';
 import cors from '@middy/http-cors';
 
-import { config } from '../../../config/config';
+import { config } from '../../../config';
 
 const dbClient = new AWS.DynamoDB.DocumentClient()
 const logger = createLogger('GetWorkCalendar');

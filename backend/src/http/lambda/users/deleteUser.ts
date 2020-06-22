@@ -1,17 +1,10 @@
 import { APIGatewayProxyHandler, APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
-import * as AWS from 'aws-sdk';
-
 import { createLogger } from '../../../utils/logger';
-import { config } from '../../../config/config';
 import cors from '@middy/http-cors';
 import middy from '@middy/core';
+import { deleteUser } from '../../../business/users';
 
 
-// FIXME Region from config
-const cognitoClient = new AWS.CognitoIdentityServiceProvider({
-  apiVersion: config.cognito.COGNITO_VERSION,
-  region: "us-east-2"
-});
 const logger = createLogger('DeleteUser');
 
 // FIXME - Refactor
@@ -19,21 +12,20 @@ const logger = createLogger('DeleteUser');
 export const handler: APIGatewayProxyHandler = middy(async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   logger.info('Processing event: ', event);
 
-  const userName:string = event.pathParameters.userId;
-
-  // TODO ppol from config -> from env
-  var params = {
-    UserPoolId: 'us-east-2_sJRdbCIjo',
-    Username: userName
-  };
-
-  try {
-    await cognitoClient.adminDeleteUser(params).promise();
+  const userName: string = event.pathParameters.userId;
+  if (!userName) {
     return {
-      statusCode: 201,
+      statusCode: 400,
+      body: 'Missing parameter: username'
+    }
+  }
+  try {
+    await deleteUser(userName);
+    return {
+      statusCode: 200,
       body: `User with Username ${userName} has successfully been deleted.`
     }
-  } catch(err) {
+  } catch (err) {
     logger.error(err);
     return {
       statusCode: 500,
