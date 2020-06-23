@@ -1,5 +1,5 @@
 GetWorkSchedule:
-  handler: src/http/lambda/schedule/getWorkSchedule.handler
+  handler: src/http/lambda/v1/schedule/getWorkSchedule.handler
   events:
     - http:
         method: get
@@ -16,7 +16,7 @@ GetWorkSchedule:
       Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.SCHEDULE_TABLE}
 
 CreateWorkSchedule:
-  handler: src/http/lambda/schedule/createWorkSchedule.handler
+  handler: src/http/lambda/v1/schedule/createWorkSchedule.handler
   events:
     - http:
         method: post
@@ -35,7 +35,7 @@ CreateWorkSchedule:
       Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.SCHEDULE_TABLE}
 
 DeleteWorkSchedule:
-  handler: src/http/lambda/schedule/deleteWorkSchedule.handler
+  handler: src/http/lambda/v1/schedule/deleteWorkSchedule.handler
   events:
     - http:
         method: delete
