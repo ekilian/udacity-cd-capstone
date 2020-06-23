@@ -42,7 +42,7 @@ CreateUser:
           authorizerId: { Ref: MyApiGatewayAuthorizer }
         request:
           schema:
-            application/json: ${file(src/http/validation/create-user-schema.json)}
+            application/json: ${file(src/http/lambda/v1/validation/create-user-schema.json)}
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -62,7 +62,7 @@ EditUser:
           authorizerId: { Ref: MyApiGatewayAuthorizer }
         request:
           schema:
-            application/json: ${file(src/http/validation/edit-user-schema.json)}
+            application/json: ${file(src/http/lambda/v1/validation/edit-user-schema.json)}
   iamRoleStatements:
     - Effect: Allow
       Action:

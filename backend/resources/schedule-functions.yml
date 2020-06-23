@@ -27,7 +27,7 @@ CreateWorkSchedule:
           authorizerId: { Ref: MyApiGatewayAuthorizer }
         request:
           schema:
-            application/json: ${file(src/http/validation/create-schedule-schema.json)}
+            application/json: ${file(src/http/lambda/v1/validation/create-schedule-schema.json)}
   iamRoleStatements:
     - Effect: Allow
       Action:
