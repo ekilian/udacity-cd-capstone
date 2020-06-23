@@ -1,4 +1,4 @@
-import React, { FunctionComponent } from "react"
+import React from "react"
 import { Chip } from "@material-ui/core";
 import { useDrag } from "react-dnd";
 
@@ -12,7 +12,7 @@ export interface DraggableWorkerProps {
 
 const dragStyle: React.CSSProperties = {
   cursor: 'move',
-  width: '90px'
+  width: '100%'
 }
 const margin: React.CSSProperties = {
   marginBottom: '2px'

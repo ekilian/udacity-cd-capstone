@@ -10,15 +10,17 @@ import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import InputLabel from '@material-ui/core/InputLabel';
-import { Card } from '@material-ui/core';
+import { Card, Backdrop, CircularProgress } from '@material-ui/core';
 
 import ScheduleActionButtons from './ScheduleActionButtons';
-import { saveWorkSchedule, deleteWorkSchedule, getWorkSchedule } from '../../api/users/ScheduleApi';
+import { saveWorkSchedule, deleteWorkSchedule, getWorkSchedule } from '../../api/ScheduleApi';
 import { createWorkingPlan } from '../../utils/WorkScheduleUtils';
 import { WorkingDay } from './WorkScheduleDay';
 import { DAYS_OF_WEEK } from '../../utils/constants';
 import { PlaningDay, PlaningCalendar } from '../../model/Calendar';
 import WorkerChips from './WorkerChips';
+import ConfirmDialog from '../common/ConfirmDialog';
+import { ICognitoAuth, useCognitoContext} from '../../auth/AuthContext';
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -57,7 +59,11 @@ const useStyles = makeStyles((theme: Theme) =>
     workerDrag: {
       margin: theme.spacing(1),
       justifyContent: 'space-between',
-    }
+    },
+    backdrop: {
+      zIndex: theme.zIndex.drawer + 1,
+      color: '#fff',
+    },
   }),
 );
 
@@ -67,6 +73,7 @@ const useStyles = makeStyles((theme: Theme) =>
 const WorkSchedule: React.FC<{}> = () => {
   const [spacing] = React.useState<GridSpacing>(2);
   const classes = useStyles();
+  const cognitoContext:ICognitoAuth = useCognitoContext();
 
   const [month, setMonth] = useState((new Date().getMonth() + 1).toString());
   const [year, setYear] = useState(new Date().getFullYear().toString());
@@ -77,6 +84,8 @@ const WorkSchedule: React.FC<{}> = () => {
   const [scheduleChanged, setScheduleChanged] = useState(false);
   const [loadedSchedule, setLoadedSchedule] = useState(false);
   const [isEditable, setEditable] = useState(true);
+  const [backdropOpen, setBackdropOpen] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const handleChange = (event: React.ChangeEvent<{ value: unknown }>) => {
     const newMonth = event.target.value as string
@@ -86,9 +95,8 @@ const WorkSchedule: React.FC<{}> = () => {
 
   const defineEditability = (month: string, year: string) => {
     const date = new Date();
-    setEditable(!((parseInt(month) < date.getMonth() + 1
-                || parseInt(month) > date.getMonth() + 2)
-                && !(parseInt(year) !== date.getFullYear())));
+    setEditable(parseInt(month) > date.getMonth()
+                && parseInt(year) === date.getFullYear());
   }
 
   const handleYearChange = (event: React.ChangeEvent<{ value: unknown }>) => {
@@ -109,22 +117,32 @@ const WorkSchedule: React.FC<{}> = () => {
   }
 
   const handleSave = async () => {
-    await saveWorkSchedule(workPlan);
+    setBackdropOpen(backdropOpen => !backdropOpen);
+    await saveWorkSchedule(workPlan, cognitoContext.authData.id_token);
     setScheduleChanged(false);
     setLoadedSchedule(true);
+    setBackdropOpen(backdropOpen => !backdropOpen);
+  }
+
+  const confirmDelete = () => {
+    setConfirmOpen(confirmOpen => !confirmOpen);
   }
 
   const handleDelete = async () => {
-    const result = await deleteWorkSchedule(parseInt(year), parseInt(month));
+    setConfirmOpen(confirmOpen => !confirmOpen);
+    setBackdropOpen(backdropOpen => !backdropOpen);
+    const result = await deleteWorkSchedule(parseInt(year), parseInt(month), cognitoContext.authData.id_token);
     setWorkPlan(result);
     setWorkPlan(createWorkingPlan(parseInt(year), parseInt(month)));
     setScheduleChanged(false);
     setLoadedSchedule(false)
+    setBackdropOpen(backdropOpen => !backdropOpen);
   }
 
   useEffect(() => {
     const callApi = async () => {
-      const loadedSchedule = await getWorkSchedule(parseInt(year), parseInt(month));
+      setBackdropOpen(backdropOpen => !backdropOpen);
+      const loadedSchedule = await getWorkSchedule(parseInt(year), parseInt(month), cognitoContext.authData.id_token);
       if(!loadedSchedule) {
         setWorkPlan({ days: [] as PlaningDay[] } as PlaningCalendar);
         const newSchedule = createWorkingPlan(parseInt(year), parseInt(month));
@@ -136,6 +154,7 @@ const WorkSchedule: React.FC<{}> = () => {
         setLoadedSchedule(true);
       }
       setScheduleChanged(false);
+      setBackdropOpen(backdropOpen => !backdropOpen);
     }
     callApi();
   }, [month, year]);
@@ -205,13 +224,17 @@ const WorkSchedule: React.FC<{}> = () => {
           ))}
         </Grid>
       </Grid>
+      <ConfirmDialog content="This will delete the current schedule. Do you want to continue?" open={confirmOpen} handleConfirm={handleDelete} handleCancel={() => setConfirmOpen(false)} />
+      <Backdrop className={classes.backdrop} open={backdropOpen}>
+        <CircularProgress color="inherit" />
+      </Backdrop>
       <WorkerChips isEditable={isEditable} />
       <ScheduleActionButtons key="fab"
               isEditable={isEditable}
               isSaveActive={scheduleChanged}
               isDeleteActive={loadedSchedule}
               handleSave={handleSave}
-              handleDelete={handleDelete} />
+              handleDelete={confirmDelete} />
     </DndProvider>
   );
 }

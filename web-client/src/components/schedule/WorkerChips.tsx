@@ -1,23 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
-import { Grid } from '@material-ui/core';
 
 import { v4 as uuid } from 'uuid';
 
 import { DraggableWorker } from './DraggableWorker';
 import { ItemTypes } from '../../utils/ItemTypes';
-import { getUsers } from '../../api/users/UsersApi';
+import { getUsers } from '../../api/UsersApi';
 import { User } from '../../model/User';
+import { useCognitoContext, ICognitoAuth } from '../../auth/AuthContext';
 
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     fab: {
       margin: 0,
-      top: 100,
+      top: 165,
       left: 'auto',
       bottom: 'auto',
-      right: 25,
+      right: 35,
       position: 'fixed',
     }
   }),
@@ -29,12 +29,18 @@ export interface WorkerChipsProps {
 
 const WorkerChips: React.FC<WorkerChipsProps> = (props) => {
   const classes = useStyles();
+  const cognitoContext:ICognitoAuth = useCognitoContext();
 
   const [worker, setWorker] = useState({list: [] as User[]});
-
   useEffect(() => {
     const callApi = async () => {
-      const workerArray = await getUsers();
+      const userArray = await getUsers(cognitoContext.authData.id_token);
+      let workerArray:User[] = [];
+      userArray.forEach((element) => {
+        if(element.customrole === 'Worker') {
+          workerArray.push(element);
+        }
+      });
       setWorker({ list: workerArray });
     }
     callApi();
@@ -44,7 +50,7 @@ const WorkerChips: React.FC<WorkerChipsProps> = (props) => {
     return (
       <div className={classes.fab} >
         {worker.list.map((value) => (
-          <DraggableWorker key={uuid()} name={value.nickname} type={ItemTypes.WORKER} isDropped={false} isEditable={true}/>
+          <DraggableWorker key={uuid()} name={value.username} type={ItemTypes.WORKER} isDropped={false} isEditable={true}/>
         ))}
       </div>
     );

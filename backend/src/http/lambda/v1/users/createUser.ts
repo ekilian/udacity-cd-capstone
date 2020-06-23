@@ -1,29 +1,24 @@
 import { APIGatewayProxyHandler, APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
-import * as AWS from 'aws-sdk'
 import middy from '@middy/core'
 import cors from '@middy/http-cors'
+import { createLogger } from '../../../../utils/logger';
+import { createNewUser } from '../../../../business/users';
 
-import { createLogger } from '../../../utils/logger';
 
-const cognitoClient = new AWS.CognitoIdentityServiceProvider()
-const logger = createLogger('GetUsers');
+const logger = createLogger('CreateUser');
 
-// FIXME - Refactor
 // TODO - Doc me
 export const handler: APIGatewayProxyHandler = middy(async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   logger.info('Processing event: ', event);
 
-  var params = {
-    UserPoolId: 'us-east-2_kwBneZOcU'
-  };
-
+  const parsedBody:any = JSON.parse(event.body);
   try {
-    const result = await cognitoClient.listUsers(params).promise();
+    await createNewUser(parsedBody);
     return {
-      statusCode: 200,
-      body: JSON.stringify(result.Users)
+      statusCode: 201,
+      body: ''
     }
-  } catch(err) {
+  } catch (err) {
     logger.error(err);
     return {
       statusCode: 500,

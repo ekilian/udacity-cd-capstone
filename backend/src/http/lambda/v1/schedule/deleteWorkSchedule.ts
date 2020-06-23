@@ -1,13 +1,9 @@
 import { APIGatewayProxyHandler, APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
-import { createLogger } from '../../../utils/logger';
-import * as AWS from 'aws-sdk';
+import { createLogger } from '../../../../utils/logger';
 import middy from '@middy/core';
 import cors from '@middy/http-cors';
+import { deleteSchedule } from '../../../../dynamoDb/accessSchedule';
 
-import { config } from '../../../config/config';
-
-
-const dbClient = new AWS.DynamoDB.DocumentClient()
 const logger = createLogger('DeleteWorkCalendar');
 
 // TODO - Implement
@@ -17,17 +13,8 @@ export const handler: APIGatewayProxyHandler = middy(async (event: APIGatewayPro
   const year = parseInt(event.pathParameters.year);
   const month = parseInt(event.pathParameters.month);
 
-  const params = {
-    TableName: config.dynamoDb.SCHEDULE_TABLE,
-    Key: {
-      'year': year,
-      'month': month
-    },
-    ReturnValues: 'NONE'
-  }
-
   try {
-    await dbClient.delete(params).promise();
+    await deleteSchedule(year, month)
     return {
       statusCode: 200,
       body: ''

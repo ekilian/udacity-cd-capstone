@@ -1,0 +1,51 @@
+GetWorkSchedule:
+  handler: src/http/lambda/schedule/getWorkSchedule.handler
+  events:
+    - http:
+        method: get
+        path: /v1/schedule/{year}/{month}
+        cors: true
+        authorizer:
+          type: COGNITO_USER_POOLS
+          authorizerId: { Ref: MyApiGatewayAuthorizer }
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:GetItem
+      Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.SCHEDULE_TABLE}
+
+CreateWorkSchedule:
+  handler: src/http/lambda/schedule/createWorkSchedule.handler
+  events:
+    - http:
+        method: post
+        path: /v1/schedule
+        cors: true
+        authorizer:
+          type: COGNITO_USER_POOLS
+          authorizerId: { Ref: MyApiGatewayAuthorizer }
+        request:
+          schema:
+            application/json: ${file(src/http/validation/create-schedule-schema.json)}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:PutItem
+      Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.SCHEDULE_TABLE}
+
+DeleteWorkSchedule:
+  handler: src/http/lambda/schedule/deleteWorkSchedule.handler
+  events:
+    - http:
+        method: delete
+        path: /v1/schedule/{year}/{month}
+        cors: true
+        authorizer:
+          type: COGNITO_USER_POOLS
+          authorizerId: { Ref: MyApiGatewayAuthorizer }
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:DeleteItem
+      Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.SCHEDULE_TABLE}

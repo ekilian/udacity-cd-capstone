@@ -1,36 +1,45 @@
-import React from 'react';
+import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 
 import './index.css';
 import App from './App';
-import * as serviceWorker from './serviceWorker';
 import { createBrowserHistory } from 'history'
 
 import { Router, Route } from 'react-router-dom';
 import Callback from './auth/Callback';
+import { Context, ICognitoAuth, CognitoContext } from './auth/AuthContext';
 
 const history = createBrowserHistory()
 
+const Index = () => {
+
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [authData, setAuthData] = useState({} as ICognitoAuth);
+
+  return (
+    <Router history={history}>
+      <Context.Provider value={{ isAuthenticated, setIsAuthenticated}}>
+        <CognitoContext.Provider value={{ authData, setAuthData}}>
+          <div>
+            <Route
+              path="/callback"
+              component={Callback}
+            />
+            <Route
+              render={props => {
+                return <App />
+              }}
+            />
+          </div>
+        </CognitoContext.Provider>
+      </Context.Provider>
+    </Router>
+  )
+}
+
 ReactDOM.render(
   <React.StrictMode>
-      <Router history={history}>
-        <div>
-          <Route
-            path="/authcallback"
-            component={Callback}
-          />
-          <Route
-            render={props => {
-              return <App />
-            }}
-          />
-        </div>
-      </Router>
+    <Index />
   </React.StrictMode>,
   document.getElementById('root')
 );
-
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: https://bit.ly/CRA-PWA
-serviceWorker.unregister();

@@ -1,0 +1,52 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Schedule",
+  "type": "object",
+  "properties": {
+    "year": {
+      "type": "number"
+    },
+    "month": {
+      "type": "number"
+    },
+    "days": {
+      "type": "array",
+      "items":{
+        "type": "object",
+        "properties": {
+          "day": {
+            "type": "number"
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "morning": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "afternoon": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "night": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "day", "morning", "afternoon", "night"
+        ]
+      }
+    }
+  },
+  "required": [
+    "year", "month", "days"
+  ],
+  "additionalProperties": true
+}
