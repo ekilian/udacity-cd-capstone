@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import clsx from 'clsx';
 
 import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
-import { Card, Button, Divider, Grid, Drawer, Slide, Backdrop, CircularProgress } from '@material-ui/core';
+import { Card, Button, Divider, Grid, Slide, Backdrop, CircularProgress } from '@material-ui/core';
 import { TextField, RadioGroup, FormControlLabel, Radio } from '@material-ui/core';
 import { Save, Delete, Edit, Close, Person, AlternateEmail, PhoneAndroid } from '@material-ui/icons'
 
-import { deleteUser, getUsers, editUser, createUser } from '../../api/users/UsersApi';
+import { deleteUser, getUsers, editUser, createUser } from '../../api/UsersApi';
 import { User } from '../../model/User';
 import UserActionButton from './UserActionButton';
+import { ICognitoAuth, useCognitoContext } from '../../auth/AuthContext';
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -69,7 +69,7 @@ const initUser = {
 
 export default function Employees() {
   const classes = useStyles();
-
+  const cognitoContext:ICognitoAuth = useCognitoContext();
   const [refresh, setRefresh] = React.useState(0);
   const [open, setOpen] = React.useState(false);
   const [backdropOpen, setBackdropOpen] = React.useState(false);
@@ -80,7 +80,7 @@ export default function Employees() {
   });
 
   const handleDeleteUser = async (user: User) => {
-    const result = await deleteUser(user.username);
+    const result = await deleteUser(user.username, cognitoContext.authData.id_token);
     if (result) {
       window.location.reload()
     }
@@ -101,9 +101,9 @@ export default function Employees() {
   const handleSave = async (user: User): Promise<void> => {
     setBackdropOpen(backdropOpen => !backdropOpen)
     if (editMode) {
-      await editUser(user);
+      await editUser(user, cognitoContext.authData.id_token);
     } else {
-      await createUser(user);
+      await createUser(user, cognitoContext.authData.id_token);
     }
     setRefresh(refresh => refresh + 1);
     setOpen(false);
@@ -125,7 +125,7 @@ export default function Employees() {
 
   useEffect(() => {
     const callApi = async () => {
-      const workerArray = await getUsers();
+      const workerArray = await getUsers(cognitoContext.authData.id_token);
       setWorker({ list: workerArray });
     }
     callApi();

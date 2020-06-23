@@ -3,8 +3,11 @@ GetWorkSchedule:
   events:
     - http:
         method: get
-        path: /schedule/{year}/{month}
+        path: /v1/schedule/{year}/{month}
         cors: true
+        authorizer:
+          type: COGNITO_USER_POOLS
+          authorizerId: { Ref: MyApiGatewayAuthorizer }
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -17,8 +20,11 @@ CreateWorkSchedule:
   events:
     - http:
         method: post
-        path: /schedule
+        path: /v1/schedule
         cors: true
+        authorizer:
+          type: COGNITO_USER_POOLS
+          authorizerId: { Ref: MyApiGatewayAuthorizer }
         request:
           schema:
             application/json: ${file(src/http/validation/create-schedule-schema.json)}
@@ -33,8 +39,11 @@ DeleteWorkSchedule:
   events:
     - http:
         method: delete
-        path: /schedule/{year}/{month}
+        path: /v1/schedule/{year}/{month}
         cors: true
+        authorizer:
+          type: COGNITO_USER_POOLS
+          authorizerId: { Ref: MyApiGatewayAuthorizer }
   iamRoleStatements:
     - Effect: Allow
       Action:

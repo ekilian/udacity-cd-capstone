@@ -1,25 +1,30 @@
 import { APIGatewayProxyHandler, APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import middy from '@middy/core'
 import cors from '@middy/http-cors'
-import { createLogger } from '../../../utils/logger';
-import { createNewUser } from '../../../business/users';
 
+import { createLogger } from '../../../../utils/logger';
+import { config } from '../../../../config';
+import { listUsers } from '../../../../cognito/accessCognito';
 
-const logger = createLogger('CreateUser');
+const logger = createLogger('GetUsers');
 
+// FIXME - Refactor
 // TODO - Doc me
 export const handler: APIGatewayProxyHandler = middy(async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   logger.info('Processing event: ', event);
 
-  const parsedBody:any = JSON.parse(event.body);
+  var params = {
+    UserPoolId: config.cognito.USER_POOL_ID
+  };
+
   try {
-    await createNewUser(parsedBody);
+    const result = await listUsers(params);
     return {
-      statusCode: 201,
-      body: ''
+      statusCode: 200,
+      body: JSON.stringify(result.Users)
     }
-  } catch (err) {
-    logger.error(err);
+  } catch(err) {
+    logger.error('Failed to call: listUsers', err);
     return {
       statusCode: 500,
       body: 'Ups. Something went wrong'

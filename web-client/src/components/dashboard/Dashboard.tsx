@@ -1,6 +1,5 @@
 import React from 'react';
-import { Switch, Route } from 'react-router-dom'
-
+import { Switch, Route, useHistory } from 'react-router-dom'
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -18,9 +17,9 @@ import {Lock, LockOpenRounded} from '@material-ui/icons'
 
 import WorkSchedule from '../schedule/WorkSchedule';
 import Employees from '../users/Users';
-import { IAuthContext, useAppContext } from '../../context/context';
+import { IAuthContext, useAuthContext } from '../../auth/AuthContext';
 import SimpleBarChart from '../reports/Reports';
-
+import config from '../../config';
 
 const drawerWidth = 240;
 
@@ -104,8 +103,9 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function Dashboard() {
-  const authContext:IAuthContext = useAppContext();
+  const history = useHistory();
   const classes = useStyles();
+  const authContext:IAuthContext = useAuthContext();
   const [open, setOpen] = React.useState(true);
 
   const handleDrawerOpen = () => {
@@ -118,11 +118,11 @@ export default function Dashboard() {
     if(authContext.isAuthenticated) {
       return handleLogout();
     }
-    // FIXME
-    window.location.href = "https://bideax0dy3.auth.us-east-2.amazoncognito.com/login?client_id=3p10t8mc7h8rtc6p9mlmhfsgdb&response_type=code&scope=profile+openid&redirect_uri=http://localhost:3000/authcallback"
+    window.location.href = config.cognito.LOGIN_ENDPOINT
   };
   function handleLogout() {
-    authContext.userHasAuthenticated(false);
+    authContext.setIsAuthenticated(false);
+    history.push("/");
   }
 
   return (
@@ -173,7 +173,6 @@ export default function Dashboard() {
               <Route exact path="/schedule" component={WorkSchedule} />
               <Route exact path="/employees" component={Employees} />
               <Route exact path="/reports" component={SimpleBarChart} />
-              {/* <Route exact path="/login" component={Login} /> */}
             </Switch>
           </Container>
         </main>

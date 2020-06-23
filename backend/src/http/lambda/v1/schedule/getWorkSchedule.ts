@@ -1,42 +1,43 @@
 import { APIGatewayProxyHandler, APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
-import { createLogger } from '../../../utils/logger';
+import { createLogger } from '../../../../utils/logger';
 import * as AWS from 'aws-sdk';
 import middy from '@middy/core';
 import cors from '@middy/http-cors';
 
-import { config } from '../../../config';
-
+import { config } from '../../../../config';
 
 const dbClient = new AWS.DynamoDB.DocumentClient()
-const logger = createLogger('UpdateWorkCalendar');
+const logger = createLogger('GetWorkCalendar');
 
-// TODO - Implement
+// TODO Docme
+// FIXME Refactor
 export const handler: APIGatewayProxyHandler = middy(async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   logger.info('Processing event: ', event);
 
   const year = parseInt(event.pathParameters.year);
   const month = parseInt(event.pathParameters.month);
-  const schedule = JSON.parse(event.body)
 
   const params = {
     TableName: config.dynamoDb.SCHEDULE_TABLE,
-    Key: {
-      'year': year,
-      'month': month
+    KeyConditionExpression: '#y = :year AND #m = :month',
+    ExpressionAttributeNames: {
+      "#y": "year",
+      "#m": "month"
     },
-    UpdateExpression: 'SET schedule = :schedule',
     ExpressionAttributeValues: {
-      ':schedule': schedule.days,
-    },
-    ReturnValues: 'UPDATED_NEW'
+      ':year': year,
+      ':month': month
+    }
   }
 
-  logger.info('Update Todo-Table:', { 'params': params });
+  logger.info('Query DynamoDB:', { 'params': params });
   try {
-    const updated = await dbClient.update(params).promise();
-    return {
-      statusCode: 200,
-      body: JSON.stringify(updated)
+    const result = await dbClient.query(params).promise();
+    if(result.Items.length > 0) {
+      return {
+        statusCode: 200,
+        body: JSON.stringify(result.Items[0])
+      }
     }
   } catch (err) {
     logger.error('Failed query DynamodDB for Schedule:', err);

@@ -1,9 +1,9 @@
 import { APIGatewayProxyHandler, APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import middy from '@middy/core'
 import cors from '@middy/http-cors'
-import { createLogger } from '../../../utils/logger';
-import { config } from '../../../config';
-import { adminGetUser } from '../../../cognito/accessCognito';
+import { createLogger } from '../../../../utils/logger';
+import { config } from '../../../../config';
+import { adminGetUser } from '../../../../cognito/accessCognito';
 
 const logger = createLogger('GetUser');
 

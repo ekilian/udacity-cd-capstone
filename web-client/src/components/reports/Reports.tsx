@@ -1,11 +1,12 @@
 import React, { useEffect } from 'react';
 import { BarChart, CartesianGrid, XAxis, YAxis, Legend, Bar } from 'recharts'
-import { getUsers } from '../../api/users/UsersApi';
+import { getUsers } from '../../api/UsersApi';
 import { User } from '../../model/User';
-import { getWorkSchedule } from '../../api/users/ScheduleApi';
+import { getWorkSchedule } from '../../api/ScheduleApi';
 import { PlaningCalendar } from '../../model/Calendar';
 import { Grid, FormControl, InputLabel, Select, MenuItem, Snackbar } from '@material-ui/core';
 import MuiAlert from '@material-ui/lab/Alert';
+import { ICognitoAuth, useCognitoContext } from '../../auth/AuthContext';
 
 
 export interface BarChartData {
@@ -22,12 +23,13 @@ const SimpleBarChart: React.FC = () => {
   const [alertOpen, setAlertOpen] = React.useState(false);
   const [month, setMonth] = React.useState((new Date().getMonth() + 1).toString());
   const [year, setYear] = React.useState(new Date().getFullYear().toString());
+  const cognitoContext:ICognitoAuth = useCognitoContext();
 
   useEffect(() => {
     const callApi = async () => {
-      const loadedSchedule = await getWorkSchedule(parseInt(year), parseInt(month));
+      const loadedSchedule = await getWorkSchedule(parseInt(year), parseInt(month), cognitoContext.authData.id_token);
       if(loadedSchedule) {
-        const userArray = await getUsers();
+        const userArray = await getUsers(cognitoContext.authData.id_token);
         let workerArray: User[] = [];
         userArray.forEach((element) => {
           if (element.customrole === 'Worker') {

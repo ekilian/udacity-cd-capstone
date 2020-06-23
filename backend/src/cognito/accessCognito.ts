@@ -63,5 +63,3 @@ export const adminUpdateUserAttributes = async (params:any) => {
   logger.info("Calling adminUpdateUserAttributes with: ", params);
   return await cognitoClient.adminUpdateUserAttributes(params).promise();
 }
-
-

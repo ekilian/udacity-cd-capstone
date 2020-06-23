@@ -1,8 +1,8 @@
 import { APIGatewayProxyHandler, APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
-import { createLogger } from '../../../utils/logger';
+import { createLogger } from '../../../../utils/logger';
 import cors from '@middy/http-cors';
 import middy from '@middy/core';
-import { deleteUser } from '../../../business/users';
+import { deleteUser } from '../../../../business/users';
 
 
 const logger = createLogger('DeleteUser');

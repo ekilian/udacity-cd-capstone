@@ -3,8 +3,11 @@ GetUsers:
   events:
     - http:
         method: get
-        path: /users
+        path: /v1/users
         cors: true
+        authorizer:
+          type: COGNITO_USER_POOLS
+          authorizerId: { Ref: MyApiGatewayAuthorizer }
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -16,8 +19,11 @@ GetUser:
   events:
     - http:
         method: get
-        path: /users/{userId}
+        path: /v1/users/{userId}
         cors: true
+        authorizer:
+          type: COGNITO_USER_POOLS
+          authorizerId: { Ref: MyApiGatewayAuthorizer }
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -29,8 +35,11 @@ CreateUser:
   events:
     - http:
         method: post
-        path: /users
+        path: /v1/users
         cors: true
+        authorizer:
+          type: COGNITO_USER_POOLS
+          authorizerId: { Ref: MyApiGatewayAuthorizer }
         request:
           schema:
             application/json: ${file(src/http/validation/create-user-schema.json)}
@@ -46,8 +55,11 @@ EditUser:
   events:
     - http:
         method: patch
-        path: /users
+        path: /v1/users
         cors: true
+        authorizer:
+          type: COGNITO_USER_POOLS
+          authorizerId: { Ref: MyApiGatewayAuthorizer }
         request:
           schema:
             application/json: ${file(src/http/validation/edit-user-schema.json)}
@@ -62,8 +74,11 @@ DeleteUser:
   events:
     - http:
         method: delete
-        path: /users/{userId}
+        path: /v1/users/{userId}
         cors: true
+        authorizer:
+          type: COGNITO_USER_POOLS
+          authorizerId: { Ref: MyApiGatewayAuthorizer }
   iamRoleStatements:
     - Effect: Allow
       Action:

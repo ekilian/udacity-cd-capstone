@@ -32,6 +32,7 @@ custom:
     includeModules:
       forceExclude:
         - aws-sdk
+        - "@types/aws-lambda"
 
   serverless-offline:
     httpPort: 4000

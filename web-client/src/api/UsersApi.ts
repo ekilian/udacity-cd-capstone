@@ -1,10 +1,14 @@
 import axios from 'axios';
-import config from '../../config';
-import { User } from '../../model/User';
+import config from '../config';
+import { User } from '../model/User';
 
 
-export const getUser = async (username:string): Promise<User> => {
-  const result = await axios.get(`${config.apiGateway.ENDPOINT_URL}/users/${username}`);
+export const getUser = async (username:string, authToken:string): Promise<User> => {
+  const result = await axios.get(`${config.apiGateway.ENDPOINT_URL}/users/${username}`, {
+    headers: {
+      Authorization: authToken
+    }
+  });
   let user: User = {
     username: username,
   }
@@ -30,8 +34,16 @@ export const getUser = async (username:string): Promise<User> => {
   return user;
 }
 
-export const getUsers = async (): Promise<User[]> => {
-  const result = await axios.get(config.apiGateway.ENDPOINT_URL + '/users');
+/**
+ * TODO
+ * @param authToken
+ */
+export const getUsers = async (authToken:string): Promise<User[]> => {
+  const result = await axios.get(`${config.apiGateway.ENDPOINT_URL}/${config.API_VERSION}/users`, {
+    headers: {
+      Authorization: authToken
+    }
+  });
   let workerArray: User[] = [];
   result.data.forEach((element: any) => {
     let user: User = {
@@ -65,7 +77,7 @@ export const getUsers = async (): Promise<User[]> => {
   return workerArray;
 }
 
-export const createUser = async (userToCreate: User): Promise<boolean> => {
+export const createUser = async (userToCreate: User, authToken:string): Promise<boolean> => {
   const userAttributes = [];
   for (let [key, value] of Object.entries(userToCreate)) {
     if (key.startsWith('custom')) {
@@ -96,7 +108,11 @@ export const createUser = async (userToCreate: User): Promise<boolean> => {
   }
 
   try {
-    await axios.post(`${config.apiGateway.ENDPOINT_URL}/users`, params);
+    await axios.post(`${config.apiGateway.ENDPOINT_URL}/${config.API_VERSION}/users`, params, {
+      headers: {
+        Authorization: authToken
+      }
+    });
     return true;
   } catch(error) {
     console.log(error);
@@ -104,7 +120,13 @@ export const createUser = async (userToCreate: User): Promise<boolean> => {
   return false;
 }
 
-export const editUser = async (userToEdit: User): Promise<boolean> => {
+/**
+ * TODO
+ * FIXME Refactor
+ * @param userToEdit
+ * @param authToken
+ */
+export const editUser = async (userToEdit: User, authToken:string): Promise<boolean> => {
   const userAttributes = [];
   for (let [key, value] of Object.entries(userToEdit)) {
     if (key.startsWith('custom')) {
@@ -136,7 +158,11 @@ export const editUser = async (userToEdit: User): Promise<boolean> => {
   }
 
   try {
-    await axios.patch(`${config.apiGateway.ENDPOINT_URL}/users/${userToEdit.username}`, params);
+    await axios.patch(`${config.apiGateway.ENDPOINT_URL}/${config.API_VERSION}/users/${userToEdit.username}`, params, {
+      headers: {
+        Authorization: authToken
+      }
+    });
     return true;
   } catch(error) {
     console.log(error);
@@ -144,11 +170,19 @@ export const editUser = async (userToEdit: User): Promise<boolean> => {
   return false;
 }
 
-// TODO Docme
-export const deleteUser = async (username:string): Promise<boolean> => {
+/**
+ * TODO Docme
+ * @param username
+ * @param authToken
+ */
+export const deleteUser = async (username:string, authToken:string): Promise<boolean> => {
   console.log('delete:', username)
   try {
-    await axios.delete(`${config.apiGateway.ENDPOINT_URL}/users/${username}`);
+    await axios.delete(`${config.apiGateway.ENDPOINT_URL}/${config.API_VERSION}/users/${username}`, {
+      headers: {
+        Authorization: authToken
+      }
+    });
     return true;
   } catch(error) {
     console.log(error);

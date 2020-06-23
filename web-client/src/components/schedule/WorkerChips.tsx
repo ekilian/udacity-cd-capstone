@@ -5,8 +5,9 @@ import { v4 as uuid } from 'uuid';
 
 import { DraggableWorker } from './DraggableWorker';
 import { ItemTypes } from '../../utils/ItemTypes';
-import { getUsers } from '../../api/users/UsersApi';
+import { getUsers } from '../../api/UsersApi';
 import { User } from '../../model/User';
+import { useCognitoContext, ICognitoAuth } from '../../auth/AuthContext';
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -28,11 +29,12 @@ export interface WorkerChipsProps {
 
 const WorkerChips: React.FC<WorkerChipsProps> = (props) => {
   const classes = useStyles();
+  const cognitoContext:ICognitoAuth = useCognitoContext();
 
   const [worker, setWorker] = useState({list: [] as User[]});
   useEffect(() => {
     const callApi = async () => {
-      const userArray = await getUsers();
+      const userArray = await getUsers(cognitoContext.authData.id_token);
       let workerArray:User[] = [];
       userArray.forEach((element) => {
         if(element.customrole === 'Worker') {
