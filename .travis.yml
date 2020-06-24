@@ -31,9 +31,10 @@ jobs:
     - stage: pull_request
       script:
         - echo 'Test Pull Request!!'
+        - cd ../backend
         - sls package -v --stage dev
         - cd ../web-client
-        - npm run build
+        - CI=false npm run build
         # TODO Build web-client, run tests
     - stage: stage
       script:
