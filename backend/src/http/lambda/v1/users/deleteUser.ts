@@ -7,8 +7,17 @@ import { deleteUser } from '../../../../business/users';
 
 const logger = createLogger('DeleteUser');
 
+/**
+ * Function: DeleteUser.
+ *
+ * API-Endpoint for method DELETE at /users/{userId}.
+ *
+ * @param event - The Event-Proxy passed from API Gateway.
+ * @returns Response with:
+ *          - status code 200 and List of Users as JSON in body.
+ *          - status code 500 if processing failed.
+ */
 // FIXME - Refactor
-// TODO - Doc me
 export const handler: APIGatewayProxyHandler = middy(async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   logger.info('Processing event: ', event);
 

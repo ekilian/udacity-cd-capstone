@@ -7,17 +7,23 @@ import { insertSchedule } from '../../../../dynamoDb/accessSchedule';
 
 const logger = createLogger('CreateWorkCalendar');
 
-
-// TODO - Implement
+/**
+ * Function: CreateWorkSchedule.
+ *
+ * API-Endpoint for method POST at /schedule.
+ *
+ * @param event - The Event-Proxy passed from API Gateway.
+ *
+ * @returns Response with status code 200 and empty body if successful, or status code 500 if processing failed.
+ */
 export const handler: APIGatewayProxyHandler = middy(async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   logger.info('Processing event: ', event);
 
   const schedule = JSON.parse(event.body);
-
   try {
     await insertSchedule(schedule);
     return {
-      statusCode: 200,
+      statusCode: 201,
       body: '',
     }
   } catch (err) {
