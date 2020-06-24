@@ -7,18 +7,8 @@ import { adminGetUser } from '../../../../cognito/accessCognito';
 
 const logger = createLogger('GetUser');
 
-
-/**
- * Function: GetUser.
- *
- * API-Endpoint for method GET at /users/{userId}.
- *
- * @param event - The Event-Proxy passed from API Gateway.
- * @returns Response with:
- *          - status code 200 and List of Users as JSON in body.
- *          - status code 500 if processing failed.
- */
 // FIXME - Refactor
+// TODO - Doc me
 export const handler: APIGatewayProxyHandler = middy(async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   logger.info('Processing event: ', event);
 
