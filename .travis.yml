@@ -28,12 +28,12 @@ jobs:
   include:
     - stage: pull_request
       script:
-        - echo 'Test Deploy!!'
+        - echo 'Test Pull Request!!'
         - sls package -v --stage dev
         # TODO Build web-client, run tests
     - stage: stage
       script:
-        - echo 'Test Deploy!!'
+        - echo 'Test Push stage!!'
         - sls deploy -v --stage dev
         # TODO Build web-client, run tests, deploy to dev
     - stage: prod
