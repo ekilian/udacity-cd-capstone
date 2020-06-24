@@ -6,18 +6,7 @@ import { deleteSchedule } from '../../../../dynamoDb/accessSchedule';
 
 const logger = createLogger('DeleteWorkCalendar');
 
-/**
- * Function: DeleteWorkSchedule.
- *
- * API-Endpoint for method DELETE at /schedule/{year}/{month}.
- *
- * @param event - The Event-Proxy passed from API Gateway.
- * @returns Response with status code:
- *          - 200 and empty body if successful
- *          - 422 if
- *          - 500 if processing failed.
- */
-// TODO - Implement validation
+// TODO - Implement
 export const handler: APIGatewayProxyHandler = middy(async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   logger.info('Processing event: ', event);
 

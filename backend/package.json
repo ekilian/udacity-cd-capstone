@@ -4,7 +4,7 @@
   "description": "Serverless webpack example using Typescript",
   "main": "handler.js",
   "scripts": {
-    "test": "mocha"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
     "@middy/core": "^1.0.0",

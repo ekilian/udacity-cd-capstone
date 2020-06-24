@@ -6,43 +6,12 @@ cache:
   directories:
     - backend/node_modules
 
+script:
+    - cd backend
+    - npm install
+    - npm install -g serverless
+    - sls deploy -v --stage dev
+
 branches:
   only:
-  - master
-  - stage
-
-install:
-  - cd backend
-  - npm ci
-  - npm install -g serverless
-  - cd ../web-client
-  - npm ci
-
-stages:
-  - name: pull_request
-    if: type = pull_request AND branch IN (master, stage)
-  - name: stage
-    if: type = push AND branch = stage
-  - name: prod
-    if: type = push AND branch = master
-
-jobs:
-  include:
-    - stage: pull_request
-      script:
-        - echo 'Test Pull Request!!'
-        - cd ../backend
-        - sls package -v --stage dev
-        - cd ../web-client
-        - CI=false npm run build
-        # TODO Build web-client, run tests
-    - stage: stage
-      script:
-        - echo 'Test Push stage!!'
-        - sls deploy -v --stage dev
-        # TODO Build web-client, run tests, deploy to dev
-    - stage: prod
-      script:
-        - echo 'Build and deploy for Production'
-        - sls deploy -v --stage prod
-        # TODO Build and deploy web-client
+    - master
