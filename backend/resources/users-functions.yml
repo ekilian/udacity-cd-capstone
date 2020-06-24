@@ -1,5 +1,5 @@
 GetUsers:
-  handler: src/http/lambda/users/getUsers.handler
+  handler: src/http/lambda/v1/users/getUsers.handler
   events:
     - http:
         method: get
@@ -15,7 +15,7 @@ GetUsers:
       Resource: arn:aws:cognito-idp:${self:provider.region}:*:userpool/${self:provider.environment.USER_POOL_ID}
 
 GetUser:
-  handler: src/http/lambda/users/getUser.handler
+  handler: src/http/lambda/v1/users/getUser.handler
   events:
     - http:
         method: get
@@ -31,7 +31,7 @@ GetUser:
       Resource: arn:aws:cognito-idp:${self:provider.region}:*:userpool/${self:provider.environment.USER_POOL_ID}
 
 CreateUser:
-  handler: src/http/lambda/users/createUser.handler
+  handler: src/http/lambda/v1/users/createUser.handler
   events:
     - http:
         method: post
@@ -42,7 +42,7 @@ CreateUser:
           authorizerId: { Ref: MyApiGatewayAuthorizer }
         request:
           schema:
-            application/json: ${file(src/http/validation/create-user-schema.json)}
+            application/json: ${file(src/http/lambda/v1/validation/create-user-schema.json)}
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -51,7 +51,7 @@ CreateUser:
       Resource: arn:aws:cognito-idp:${self:provider.region}:*:userpool/${self:provider.environment.USER_POOL_ID}
 
 EditUser:
-  handler: src/http/lambda/users/editUser.handler
+  handler: src/http/lambda/v1/users/editUser.handler
   events:
     - http:
         method: patch
@@ -62,7 +62,7 @@ EditUser:
           authorizerId: { Ref: MyApiGatewayAuthorizer }
         request:
           schema:
-            application/json: ${file(src/http/validation/edit-user-schema.json)}
+            application/json: ${file(src/http/lambda/v1/validation/edit-user-schema.json)}
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -70,7 +70,7 @@ EditUser:
       Resource: arn:aws:cognito-idp:${self:provider.region}:*:userpool/${self:provider.environment.USER_POOL_ID}
 
 DeleteUser:
-  handler: src/http/lambda/users/deleteUser.handler
+  handler: src/http/lambda/v1/users/deleteUser.handler
   events:
     - http:
         method: delete

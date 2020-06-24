@@ -9,7 +9,15 @@ import { config } from '../../../../config';
 const dbClient = new AWS.DynamoDB.DocumentClient()
 const logger = createLogger('GetWorkCalendar');
 
-// TODO Docme
+/**
+ * Function: GetWorkSchedule.
+ *
+ * API-Endpoint for method GET at /schedule/.
+ *
+ * @param event - The Event-Proxy passed from API Gateway.
+ * @returns Response with status code 200 and the result aa body if successful, or status code 500 if processing failed.
+ */
+// TODO - Implement validation
 // FIXME Refactor
 export const handler: APIGatewayProxyHandler = middy(async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   logger.info('Processing event: ', event);
