@@ -4,7 +4,7 @@ node_js:
 
 cache:
   directories:
-    - node_modules
+    - backend/node_modules
 
 branches:
   only:
@@ -17,21 +17,27 @@ install:
     - npm install -g serverless
 
 stages:
-    # require the type to be a PR
-  - name: test
-    if: type = pull_request
-    # require the type to be push to master
-  - name: deploy
+  - name: pull_request
+    if: type = pull_request AND branch IN (master, stage)
+  - name: stage
+    if: type = push AND branch = stage
+  - name: prod
     if: type = push AND branch = master
 
 jobs:
   include:
-    - stage: test
+    - stage: pull_request
       script:
         - echo 'Test Deploy!!'
         - sls package -v --stage dev
-
-    - stage: deploy
+        # TODO Build web-client, run tests
+    - stage: stage
       script:
         - echo 'Test Deploy!!'
         - sls deploy -v --stage dev
+        # TODO Build web-client, run tests, deploy to dev
+    - stage: prod
+      script:
+        - echo 'Build and deploy for Production'
+        - sls deploy -v --stage prod
+        # TODO Build and deploy web-client
