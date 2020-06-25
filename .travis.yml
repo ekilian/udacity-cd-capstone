@@ -39,10 +39,12 @@ jobs:
     - stage: stage
       script:
         - echo 'Test Push stage!!'
+        - cd ../backend
         - sls deploy -v --stage dev
         # TODO Build web-client, run tests, deploy to dev
     - stage: prod
       script:
         - echo 'Build and deploy for Production'
+        - cd ../backend
         - sls deploy -v --stage prod
         # TODO Build and deploy web-client
