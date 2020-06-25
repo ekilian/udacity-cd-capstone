@@ -34,7 +34,7 @@ const WorkerChips: React.FC<WorkerChipsProps> = (props) => {
   const [worker, setWorker] = useState({list: [] as User[]});
   useEffect(() => {
     const callApi = async () => {
-      const userArray = await getUsers(cognitoContext.authData.id_token);
+      const userArray = await getUsers(true, cognitoContext.authData.id_token);
       let workerArray:User[] = [];
       userArray.forEach((element) => {
         if(element.customrole === 'Worker') {

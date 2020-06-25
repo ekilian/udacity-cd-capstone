@@ -3,6 +3,7 @@ import { createLogger } from '../../../../utils/logger';
 import middy from '@middy/core';
 import cors from '@middy/http-cors';
 import { deleteSchedule } from '../../../../dynamoDb/accessSchedule';
+import { checkNumberParameters } from '../../../../utils/validation';
 
 const logger = createLogger('DeleteWorkCalendar');
 
@@ -23,6 +24,14 @@ export const handler: APIGatewayProxyHandler = middy(async (event: APIGatewayPro
 
   const year = parseInt(event.pathParameters.year);
   const month = parseInt(event.pathParameters.month);
+
+  const valid = checkNumberParameters(year, month)
+  if (!valid) {
+    return {
+      statusCode: 400,
+      body: 'Missing or wrong parameter.'
+    }
+  }
 
   try {
     await deleteSchedule(year, month)

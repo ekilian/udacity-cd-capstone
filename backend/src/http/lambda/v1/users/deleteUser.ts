@@ -12,12 +12,14 @@ const logger = createLogger('DeleteUser');
  *
  * API-Endpoint for method DELETE at /users/{userId}.
  *
+ * Does not actually delete the dataset but instead sets the user to disabled.
+ *
  * @param event - The Event-Proxy passed from API Gateway.
- * @returns Response with:
- *          - status code 200 and List of Users as JSON in body.
- *          - status code 500 if processing failed.
+ * @returns Response with status code:
+ *          - 200 and List of Users as JSON in body.
+ *          - 400 if the path parameter is missing
+ *          - 500 if processing failed.
  */
-// FIXME - Refactor
 export const handler: APIGatewayProxyHandler = middy(async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   logger.info('Processing event: ', event);
 

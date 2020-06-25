@@ -9,6 +9,7 @@ import { deleteUser, getUsers, editUser, createUser } from '../../api/UsersApi';
 import { User } from '../../model/User';
 import UserActionButton from './UserActionButton';
 import { ICognitoAuth, useCognitoContext } from '../../auth/AuthContext';
+import { useHistory } from 'react-router-dom';
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -68,6 +69,7 @@ const initUser = {
 } as User;
 
 export default function Employees() {
+  const history = useHistory();
   const classes = useStyles();
   const cognitoContext:ICognitoAuth = useCognitoContext();
   const [refresh, setRefresh] = React.useState(0);
@@ -82,7 +84,7 @@ export default function Employees() {
   const handleDeleteUser = async (user: User) => {
     const result = await deleteUser(user.username, cognitoContext.authData.id_token);
     if (result) {
-      window.location.reload()
+      history.push("/employees")
     }
   }
 
@@ -125,7 +127,7 @@ export default function Employees() {
 
   useEffect(() => {
     const callApi = async () => {
-      const workerArray = await getUsers(cognitoContext.authData.id_token);
+      const workerArray = await getUsers(true, cognitoContext.authData.id_token);
       setWorker({ list: workerArray });
     }
     callApi();
