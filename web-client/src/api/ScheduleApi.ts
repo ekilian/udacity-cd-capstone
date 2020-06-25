@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { PlaningCalendar, PlaningDay } from '../model/Calendar';
 import config from '../config';
+import { Auth } from 'aws-amplify';
 
 /**
  * TODO Docme
@@ -8,10 +9,12 @@ import config from '../config';
  * @param month
  * @param authToken
  */
-export const getWorkSchedule = async (year:number, month:number, authToken:string):Promise<PlaningCalendar> => {
-  const result = await axios.get(`${config.apiGateway.ENDPOINT_URL}/${config.API_VERSION}/schedule/${year}/${month}`, {
+export const getWorkSchedule = async (year:number, month:number):Promise<PlaningCalendar> => {
+  const idToken = (await Auth.currentSession()).getIdToken();
+  console.log(idToken.getJwtToken());
+  const result = await axios.get(`${config.apiGateway.ENDPOINT_URL}/${config.STAGE}/${config.API_VERSION}/schedule/${year}/${month}`, {
     headers: {
-      Authorization: authToken
+      Authorization: idToken.getJwtToken()
     }
   });
   let response;
@@ -27,10 +30,11 @@ export const getWorkSchedule = async (year:number, month:number, authToken:strin
  * TODO Docme
  * @param schedule
  */
-export const saveWorkSchedule = async (schedule:PlaningCalendar, authToken:string):Promise<PlaningCalendar> => {
-  await axios.post(`${config.apiGateway.ENDPOINT_URL}/${config.API_VERSION}/schedule`, schedule, {
+export const saveWorkSchedule = async (schedule:PlaningCalendar):Promise<PlaningCalendar> => {
+  const idToken = (await Auth.currentSession()).getIdToken();
+  await axios.post(`${config.apiGateway.ENDPOINT_URL}/${config.STAGE}/${config.API_VERSION}/schedule`, schedule, {
     headers: {
-      Authorization: authToken
+      Authorization: idToken.getJwtToken()
     }
   });
   return {} as PlaningCalendar;
@@ -41,10 +45,11 @@ export const saveWorkSchedule = async (schedule:PlaningCalendar, authToken:strin
  * @param year
  * @param month
  */
-export const deleteWorkSchedule = async (year:number, month:number, authToken:string):Promise<PlaningCalendar> => {
-  await axios.delete(`${config.apiGateway.ENDPOINT_URL}/${config.API_VERSION}/schedule/${year}/${month}`, {
+export const deleteWorkSchedule = async (year:number, month:number):Promise<PlaningCalendar> => {
+  const idToken = (await Auth.currentSession()).getIdToken();
+  await axios.delete(`${config.apiGateway.ENDPOINT_URL}/${config.STAGE}/${config.API_VERSION}/schedule/${year}/${month}`, {
     headers: {
-      Authorization: authToken
+      Authorization: idToken.getJwtToken()
     }
   });
   return {

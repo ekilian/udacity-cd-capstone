@@ -8,7 +8,6 @@ import { Save, Delete, Edit, Close, Person, AlternateEmail, PhoneAndroid } from 
 import { deleteUser, getUsers, editUser, createUser } from '../../api/UsersApi';
 import { User } from '../../model/User';
 import UserActionButton from './UserActionButton';
-import { ICognitoAuth, useCognitoContext } from '../../auth/AuthContext';
 import { useHistory } from 'react-router-dom';
 
 
@@ -71,7 +70,6 @@ const initUser = {
 export default function Employees() {
   const history = useHistory();
   const classes = useStyles();
-  const cognitoContext:ICognitoAuth = useCognitoContext();
   const [refresh, setRefresh] = React.useState(0);
   const [open, setOpen] = React.useState(false);
   const [backdropOpen, setBackdropOpen] = React.useState(false);
@@ -82,7 +80,7 @@ export default function Employees() {
   });
 
   const handleDeleteUser = async (user: User) => {
-    const result = await deleteUser(user.username, cognitoContext.authData.id_token);
+    const result = await deleteUser(user.username);
     if (result) {
       history.push("/employees")
     }
@@ -103,9 +101,9 @@ export default function Employees() {
   const handleSave = async (user: User): Promise<void> => {
     setBackdropOpen(backdropOpen => !backdropOpen)
     if (editMode) {
-      await editUser(user, cognitoContext.authData.id_token);
+      await editUser(user);
     } else {
-      await createUser(user, cognitoContext.authData.id_token);
+      await createUser(user);
     }
     setRefresh(refresh => refresh + 1);
     setOpen(false);
@@ -127,7 +125,7 @@ export default function Employees() {
 
   useEffect(() => {
     const callApi = async () => {
-      const workerArray = await getUsers(true, cognitoContext.authData.id_token);
+      const workerArray = await getUsers(true);
       setWorker({ list: workerArray });
     }
     callApi();

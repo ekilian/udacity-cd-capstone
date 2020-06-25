@@ -25,6 +25,7 @@ provider:
     SCHEDULE_TABLE: WorkScheduleTable-${self:provider.stage}
     REGION: ${opt:region}
     USER_POOL_ID: ${self:provider.region}_sJRdbCIjo
+    S3_BUCKET: ek-capstone-app
 
 custom:
   webpack:
@@ -56,3 +57,5 @@ resources:
   - ${file(resources/cognito.yml)}
   # DynamoDB
   - ${file(resources/dynamodb.yml)}
+  # S3
+  - ${file(resources/s3-bucket.yml)

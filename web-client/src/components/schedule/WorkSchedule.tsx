@@ -20,7 +20,6 @@ import { DAYS_OF_WEEK } from '../../utils/constants';
 import { PlaningDay, PlaningCalendar } from '../../model/Calendar';
 import WorkerChips from './WorkerChips';
 import ConfirmDialog from '../common/ConfirmDialog';
-import { ICognitoAuth, useCognitoContext} from '../../auth/AuthContext';
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -73,7 +72,6 @@ const useStyles = makeStyles((theme: Theme) =>
 const WorkSchedule: React.FC<{}> = () => {
   const [spacing] = React.useState<GridSpacing>(2);
   const classes = useStyles();
-  const cognitoContext:ICognitoAuth = useCognitoContext();
 
   const [month, setMonth] = useState((new Date().getMonth() + 1).toString());
   const [year, setYear] = useState(new Date().getFullYear().toString());
@@ -118,7 +116,7 @@ const WorkSchedule: React.FC<{}> = () => {
 
   const handleSave = async () => {
     setBackdropOpen(backdropOpen => !backdropOpen);
-    await saveWorkSchedule(workPlan, cognitoContext.authData.id_token);
+    await saveWorkSchedule(workPlan);
     setScheduleChanged(false);
     setLoadedSchedule(true);
     setBackdropOpen(backdropOpen => !backdropOpen);
@@ -131,7 +129,7 @@ const WorkSchedule: React.FC<{}> = () => {
   const handleDelete = async () => {
     setConfirmOpen(confirmOpen => !confirmOpen);
     setBackdropOpen(backdropOpen => !backdropOpen);
-    const result = await deleteWorkSchedule(parseInt(year), parseInt(month), cognitoContext.authData.id_token);
+    const result = await deleteWorkSchedule(parseInt(year), parseInt(month));
     setWorkPlan(result);
     setWorkPlan(createWorkingPlan(parseInt(year), parseInt(month)));
     setScheduleChanged(false);
@@ -142,7 +140,7 @@ const WorkSchedule: React.FC<{}> = () => {
   useEffect(() => {
     const callApi = async () => {
       setBackdropOpen(backdropOpen => !backdropOpen);
-      const loadedSchedule = await getWorkSchedule(parseInt(year), parseInt(month), cognitoContext.authData.id_token);
+      const loadedSchedule = await getWorkSchedule(parseInt(year), parseInt(month));
       if(!loadedSchedule) {
         setWorkPlan({ days: [] as PlaningDay[] } as PlaningCalendar);
         const newSchedule = createWorkingPlan(parseInt(year), parseInt(month));

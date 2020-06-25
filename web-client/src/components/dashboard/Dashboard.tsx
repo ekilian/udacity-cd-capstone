@@ -20,6 +20,7 @@ import Employees from '../users/Users';
 import { IAuthContext, useAuthContext } from '../../auth/AuthContext';
 import SimpleBarChart from '../reports/Reports';
 import config from '../../config';
+import Login from '../../auth/Login';
 
 const drawerWidth = 240;
 
@@ -118,8 +119,9 @@ export default function Dashboard() {
     if(authContext.isAuthenticated) {
       return handleLogout();
     }
-    window.location.href = config.cognito.LOGIN_ENDPOINT
-  };
+    history.push("/login")
+    //window.location.href = `${config.cognito.AUTH_ENDPOINT}/login?client_id=${config.cognito.APP_CLIENT_ID}&response_type=code&scope=profile+openid&redirect_uri=${config.cognito.CALLBACK_URL}`;
+  }
   function handleLogout() {
     authContext.setIsAuthenticated(false);
     history.push("/");
@@ -173,6 +175,7 @@ export default function Dashboard() {
               <Route exact path="/schedule" component={WorkSchedule} />
               <Route exact path="/employees" component={Employees} />
               <Route exact path="/reports" component={SimpleBarChart} />
+              <Route exact path="/login" component={Login} />
             </Switch>
           </Container>
         </main>

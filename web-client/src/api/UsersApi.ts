@@ -1,6 +1,7 @@
 import axios from 'axios';
 import config from '../config';
 import { User } from '../model/User';
+import { Auth } from 'aws-amplify';
 
 
 /**
@@ -9,10 +10,11 @@ import { User } from '../model/User';
  * @param username - the username
  * @param authToken - the ID-Token that is necessary for authentication.
  */
-export const getUser = async (username:string, authToken:string): Promise<User> => {
+export const getUser = async (username:string): Promise<User> => {
+  const idToken = (await Auth.currentSession()).getIdToken();
   const result = await axios.get(`${config.apiGateway.ENDPOINT_URL}/users/${username}`, {
     headers: {
-      Authorization: authToken
+      Authorization: idToken.getJwtToken()
     }
   });
   let user: User = {
@@ -46,10 +48,11 @@ export const getUser = async (username:string, authToken:string): Promise<User> 
  * @param onlyEnabled - if set to true processes only enabled users.
  * @param authToken - the ID-Token that is necessary for authentication.
  */
-export const getUsers = async (onlyEnabled:boolean, authToken:string): Promise<User[]> => {
-  const result = await axios.get(`${config.apiGateway.ENDPOINT_URL}/${config.API_VERSION}/users`, {
+export const getUsers = async (onlyEnabled:boolean): Promise<User[]> => {
+  const idToken = (await Auth.currentSession()).getIdToken();
+  const result = await axios.get(`${config.apiGateway.ENDPOINT_URL}/${config.STAGE}/${config.API_VERSION}/users`, {
     headers: {
-      Authorization: authToken
+      Authorization: idToken.getJwtToken()
     }
   });
   let workerArray: User[] = [];
@@ -88,7 +91,7 @@ export const getUsers = async (onlyEnabled:boolean, authToken:string): Promise<U
   return workerArray;
 }
 
-export const createUser = async (userToCreate: User, authToken:string): Promise<boolean> => {
+export const createUser = async (userToCreate: User): Promise<boolean> => {
   const userAttributes = [];
   for (let [key, value] of Object.entries(userToCreate)) {
     if (key.startsWith('custom')) {
@@ -119,9 +122,10 @@ export const createUser = async (userToCreate: User, authToken:string): Promise<
   }
 
   try {
-    await axios.post(`${config.apiGateway.ENDPOINT_URL}/${config.API_VERSION}/users`, params, {
+    const idToken = (await Auth.currentSession()).getIdToken();
+    await axios.post(`${config.apiGateway.ENDPOINT_URL}/${config.STAGE}/${config.API_VERSION}/users`, params, {
       headers: {
-        Authorization: authToken
+        Authorization: idToken.getJwtToken()
       }
     });
     return true;
@@ -137,7 +141,7 @@ export const createUser = async (userToCreate: User, authToken:string): Promise<
  * @param userToEdit
  * @param authToken
  */
-export const editUser = async (userToEdit: User, authToken:string): Promise<boolean> => {
+export const editUser = async (userToEdit: User): Promise<boolean> => {
   const userAttributes = [];
   for (let [key, value] of Object.entries(userToEdit)) {
     if (key.startsWith('custom')) {
@@ -169,9 +173,10 @@ export const editUser = async (userToEdit: User, authToken:string): Promise<bool
   }
 
   try {
-    await axios.patch(`${config.apiGateway.ENDPOINT_URL}/${config.API_VERSION}/users/${userToEdit.username}`, params, {
+    const idToken = (await Auth.currentSession()).getIdToken();
+    await axios.patch(`${config.apiGateway.ENDPOINT_URL}/${config.STAGE}/${config.API_VERSION}/users/${userToEdit.username}`, params, {
       headers: {
-        Authorization: authToken
+        Authorization: idToken.getJwtToken()
       }
     });
     return true;
@@ -186,12 +191,12 @@ export const editUser = async (userToEdit: User, authToken:string): Promise<bool
  * @param username
  * @param authToken
  */
-export const deleteUser = async (username:string, authToken:string): Promise<boolean> => {
-  console.log('delete:', username)
+export const deleteUser = async (username:string): Promise<boolean> => {
+  const idToken = (await Auth.currentSession()).getIdToken();
   try {
-    await axios.delete(`${config.apiGateway.ENDPOINT_URL}/${config.API_VERSION}/users/${username}`, {
+    await axios.delete(`${config.apiGateway.ENDPOINT_URL}/${config.STAGE}/${config.API_VERSION}/users/${username}`, {
       headers: {
-        Authorization: authToken
+        Authorization: idToken.getJwtToken()
       }
     });
     return true;
