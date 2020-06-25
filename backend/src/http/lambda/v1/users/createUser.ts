@@ -20,8 +20,8 @@ const logger = createLogger('CreateUser');
 export const handler: APIGatewayProxyHandler = middy(async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   logger.info('Processing event: ', event);
 
-  const parsedBody:any = JSON.parse(event.body);
   try {
+    const parsedBody:any = JSON.parse(event.body);
     await createNewUser(parsedBody);
     return {
       statusCode: 201,
@@ -34,5 +34,4 @@ export const handler: APIGatewayProxyHandler = middy(async (event: APIGatewayPro
       body: 'Ups. Something went wrong'
     }
   }
-
 }).use(cors())

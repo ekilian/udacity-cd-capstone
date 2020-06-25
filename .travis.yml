@@ -32,19 +32,22 @@ jobs:
       script:
         - echo 'Test Pull Request!!'
         - cd ../backend
+        - npm test
         - sls package -v --stage dev
         - cd ../web-client
         - CI=false npm run build
         # TODO Build web-client, run tests
     - stage: stage
       script:
-        - echo 'Test Push stage!!'
+        - echo 'Test, build and deploy to dev'
         - cd ../backend
+        - npm test
         - sls deploy -v --stage dev
         # TODO Build web-client, run tests, deploy to dev
     - stage: prod
       script:
-        - echo 'Build and deploy for Production'
+        - echo 'Test, build and deploy to prod'
         - cd ../backend
+        - npm test
         - sls deploy -v --stage prod
         # TODO Build and deploy web-client
