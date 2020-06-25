@@ -6,12 +6,6 @@ cache:
   directories:
     - backend/node_modules
 
-script:
-    - cd backend
-    - npm install
-    - npm install -g serverless
-    - sls deploy -v --stage dev
-
 install:
   - cd backend
   - npm ci
