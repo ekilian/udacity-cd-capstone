@@ -52,7 +52,7 @@ export const adminSetUserPassword = async (params:any) => {
  */
 export const adminDeleteUser = async (params:any) => {
   logger.info("Calling adminDeleteUser with: ", params);
-  return await cognitoClient.adminDeleteUser(params).promise();
+  return await cognitoClient.adminDisableUser(params).promise();
 }
 
 /**
