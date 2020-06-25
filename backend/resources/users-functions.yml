@@ -82,5 +82,5 @@ DeleteUser:
   iamRoleStatements:
     - Effect: Allow
       Action:
-        - cognito-idp:AdminDeleteUser
+        - cognito-idp:AdminDisableUser
       Resource: arn:aws:cognito-idp:${self:provider.region}:*:userpool/${self:provider.environment.USER_POOL_ID}

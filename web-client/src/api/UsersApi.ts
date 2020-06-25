@@ -3,6 +3,12 @@ import config from '../config';
 import { User } from '../model/User';
 
 
+/**
+ * Calls the Users-API to get the data for the specified username.
+ *
+ * @param username - the username
+ * @param authToken - the ID-Token that is necessary for authentication.
+ */
 export const getUser = async (username:string, authToken:string): Promise<User> => {
   const result = await axios.get(`${config.apiGateway.ENDPOINT_URL}/users/${username}`, {
     headers: {
@@ -35,10 +41,12 @@ export const getUser = async (username:string, authToken:string): Promise<User> 
 }
 
 /**
- * TODO
- * @param authToken
+ * Calls the Users-API to get all users from the Cognito user pool.
+ *
+ * @param onlyEnabled - if set to true processes only enabled users.
+ * @param authToken - the ID-Token that is necessary for authentication.
  */
-export const getUsers = async (authToken:string): Promise<User[]> => {
+export const getUsers = async (onlyEnabled:boolean, authToken:string): Promise<User[]> => {
   const result = await axios.get(`${config.apiGateway.ENDPOINT_URL}/${config.API_VERSION}/users`, {
     headers: {
       Authorization: authToken
@@ -46,6 +54,9 @@ export const getUsers = async (authToken:string): Promise<User[]> => {
   });
   let workerArray: User[] = [];
   result.data.forEach((element: any) => {
+    if(onlyEnabled && element.Enabled === false) {
+      return;
+    }
     let user: User = {
       username: element.Username
     }

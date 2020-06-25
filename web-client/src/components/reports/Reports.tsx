@@ -29,7 +29,7 @@ const SimpleBarChart: React.FC = () => {
     const callApi = async () => {
       const loadedSchedule = await getWorkSchedule(parseInt(year), parseInt(month), cognitoContext.authData.id_token);
       if(loadedSchedule) {
-        const userArray = await getUsers(cognitoContext.authData.id_token);
+        const userArray = await getUsers(false, cognitoContext.authData.id_token);
         let workerArray: User[] = [];
         userArray.forEach((element) => {
           if (element.customrole === 'Worker') {

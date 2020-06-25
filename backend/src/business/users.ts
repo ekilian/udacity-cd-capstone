@@ -1,9 +1,47 @@
 import { config } from '../config';
-import { adminCreateUser, adminSetUserPassword, adminDeleteUser, adminUpdateUserAttributes } from '../cognito/accessCognito';
+import { adminCreateUser, adminSetUserPassword, adminDeleteUser, adminUpdateUserAttributes, listUsers, adminGetUser } from '../cognito/accessCognito';
 import { createLogger } from '../utils/logger';
 
-
 const logger = createLogger('AccessCognito');
+
+
+/**
+ * Gets all users of the configured User Pool from AWS Cognito.
+ *
+ * @param username - The username of the user.
+ * @returns Array of CognitoUSers
+ */
+export const readOneUser = async (username:string) => {
+  var params = {
+    UserPoolId: config.cognito.USER_POOL_ID,
+    Username: username
+  };
+  try {
+    return await adminGetUser(params);
+  } catch(err) {
+    logger.error('Failed to call Users.adminDeleteUser()', err);
+    throw err;
+  }
+}
+
+
+/**
+ * Gets all users of the configured User Pool from AWS Cognito.
+ *
+ * @returns Array of CognitoUSers
+ */
+export const readAllUser = async () => {
+  var params = {
+    UserPoolId: config.cognito.USER_POOL_ID
+  };
+  try {
+    return await listUsers(params);
+  } catch(err) {
+    logger.error('Failed to call Users.adminDeleteUser()', err);
+    throw err;
+  }
+}
+
 
 /**
  *

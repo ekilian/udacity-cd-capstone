@@ -12,7 +12,7 @@ Rubic requirements that I wanted to fulfil with this project:
    - The project demonstrates an understanding of CI and Github:
      - [x] Project code is stored in a GitHub repository. The project is using Travis-CI as CI tool.
    - The project has a proper documentation:
-     - [ ] The README file includes introduction how to setup and deploy the project.
+     - [x] The README file includes introduction how to setup and deploy the project.
      - [ ] It explains the main building blocks.
      - [ ] Has comments in the important files.
    - The project use continuous deployments (CD):
@@ -24,13 +24,13 @@ Rubic requirements that I wanted to fulfil with this project:
 
 3. Deployment:
    - The application runs on a cluster in the cloud
-     - [ ] The project can be deployed to a kubernetes cluster
+     - [ ] Does not apply to this project because it's implemented as a serverless application.
    - The app can be upgraded via rolling-update:
      - [x] The students can deploy a new version of the application without downtime
    - A/B deployment of the application
      - [ ] Two versions of the same app can run at the same and service traffic
    - Monitoring:
-     - The application is monitored by Amazon CloudWatch (TODO: Screenshot of Cloudwatch linked here)
+     - [x] The application is monitored by Amazon CloudWatch (TODO: Screenshot of Cloudwatch linked here)
 
 4. Functionality:
    - The application allows users to create, update, delete items:
@@ -44,7 +44,7 @@ Rubic requirements that I wanted to fulfil with this project:
 
 5. Codebase:
    - The code is split into multiple layers separating business logic from I/O related code:
-     - [ ] Code of Lambda functions is split into multiple files/classes. The business logic of an application is separated from code for database access and code related to AWS Lambda.
+     - [x] Code of Lambda functions is split into multiple files/classes. The business logic of an application is separated from code for database access and code related to AWS Lambda.
    - Code is implemented using async/await and Promises without using callbacks:
      - [x] The project uses async/await constructs to get results of asynchronous operations
 

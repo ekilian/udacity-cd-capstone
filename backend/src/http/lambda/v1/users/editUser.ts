@@ -12,9 +12,8 @@ const logger = createLogger('EditUser');
 export const handler: APIGatewayProxyHandler = middy(async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   logger.info('Processing event: ', event);
 
-  const parsedBody:any = JSON.parse(event.body);
-
   try {
+    const parsedBody:any = JSON.parse(event.body);
     const result = await updateUser(parsedBody);
     return {
       statusCode: 200,

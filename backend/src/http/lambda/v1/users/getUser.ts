@@ -2,24 +2,34 @@ import { APIGatewayProxyHandler, APIGatewayProxyEvent, APIGatewayProxyResult } f
 import middy from '@middy/core'
 import cors from '@middy/http-cors'
 import { createLogger } from '../../../../utils/logger';
-import { config } from '../../../../config';
-import { adminGetUser } from '../../../../cognito/accessCognito';
+import { readOneUser } from '../../../../business/users';
+
 
 const logger = createLogger('GetUser');
 
-// FIXME - Refactor
-// TODO - Doc me
+/**
+ * Function: GetUser.
+ *
+ * API-Endpoint for method GET at /users/{userId}.
+ *
+ * @param event - The Event-Proxy passed from API Gateway.
+ * @returns Response with:
+ *          - status code 200 and List of Users as JSON in body.
+ *          - status code 500 if processing failed.
+ */
 export const handler: APIGatewayProxyHandler = middy(async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   logger.info('Processing event: ', event);
 
-  const userId = event.pathParameters.userId;
-  var params = {
-    UserPoolId: config.cognito.USER_POOL_ID,
-    Username: userId
-  };
+  const userName = event.pathParameters.userId;
+  if (!userName) {
+    return {
+      statusCode: 400,
+      body: 'Missing parameter: username'
+    }
+  }
 
   try {
-    const result = await adminGetUser(params);
+    const result = await readOneUser(userName);
     return {
       statusCode: 200,
       body: JSON.stringify(result.UserAttributes)
