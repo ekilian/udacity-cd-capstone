@@ -40,7 +40,7 @@ Rubic requirements that I wanted to fulfil with this project:
    - The application only displays items for a logged in user.
      - [ ]
    - Authentication is implemented and does not allow unauthenticated access.
-     - [ ] A user needs to authenticate in order to use an application. Authentication is based on AWS Cognito.
+     - [x] A user needs to authenticate in order to use an application. Authentication is based on AWS Cognito.
 
 5. Codebase:
    - The code is split into multiple layers separating business logic from I/O related code:
@@ -56,7 +56,7 @@ Rubic requirements that I wanted to fulfil with this project:
    - Application has sufficient monitoring.
      - [ ] Distributed tracing is enabled/ Sufficient amount of logging / Application level metrics
    - HTTP requests are validated:
-     - [ ] Incoming HTTP requests are validated using request validation in API Gateway.
+     - [x] Incoming HTTP requests are validated. Path parameters are validated in the handler. The body is validated using request validation in API Gateway.
 
 7. Architecture:
    - Data is stored in a table with a composite key.
