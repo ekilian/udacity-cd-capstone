@@ -40,8 +40,8 @@ Resources:
       AllowedOAuthFlows: ["code"]
       AllowedOAuthFlowsUserPoolClient: true
       AllowedOAuthScopes: ["openid", "profile", "aws.cognito.signin.user.admin"]
-      CallbackURLs: ["http://localhost:3000/callback"]
-      DefaultRedirectURI: "http://localhost:3000/callback"
+      CallbackURLs: ["https://ek-capstone-app.s3.us-east-2.amazonaws.com/callback"]
+      DefaultRedirectURI: "https://ek-capstone-app.s3.us-east-2.amazonaws.com/callback"
       ExplicitAuthFlows:
         - ADMIN_NO_SRP_AUTH
       GenerateSecret: true

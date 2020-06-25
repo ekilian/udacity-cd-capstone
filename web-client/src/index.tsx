@@ -6,36 +6,35 @@ import App from './App';
 import { createBrowserHistory } from 'history'
 
 import { Router, Route } from 'react-router-dom';
-import Callback from './auth/Callback';
-import { Context, ICognitoAuth, CognitoContext } from './auth/AuthContext';
+import { Context } from './auth/AuthContext';
+import Amplify from 'aws-amplify';
+import config from './config';
 
 const history = createBrowserHistory()
 
 const Index = () => {
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [authData, setAuthData] = useState({} as ICognitoAuth);
 
   return (
     <Router history={history}>
       <Context.Provider value={{ isAuthenticated, setIsAuthenticated}}>
-        <CognitoContext.Provider value={{ authData, setAuthData}}>
           <div>
-            <Route
-              path="/callback"
-              component={Callback}
-            />
-            <Route
-              render={props => {
-                return <App />
-              }}
-            />
+            <App />
           </div>
-        </CognitoContext.Provider>
       </Context.Provider>
     </Router>
   )
 }
+
+Amplify.configure({
+  Auth: {
+    mandatorySignIn: true,
+    region: config.REGION,
+    userPoolId: config.cognito.USER_POOL_ID,
+    userPoolWebClientId: config.cognito.APP_CLIENT_ID
+  }
+});
 
 ReactDOM.render(
   <React.StrictMode>
