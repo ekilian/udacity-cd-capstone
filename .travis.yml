@@ -6,10 +6,11 @@ cache:
   directories:
     - backend/node_modules
 
-branches:
-  only:
-  - master
-  - stage
+script:
+    - cd backend
+    - npm install
+    - npm install -g serverless
+    - sls deploy -v --stage dev
 
 install:
   - cd backend

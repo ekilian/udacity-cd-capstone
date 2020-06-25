@@ -7,16 +7,7 @@ import { createNewUser } from '../../../../business/users';
 
 const logger = createLogger('CreateUser');
 
-/**
- * Function: CreateUser.
- *
- * API-Endpoint for method POST at /users/.
- *
- * @param event - The Event-Proxy passed from API Gateway.
- * @returns Response with:
- *          - status code 201 and empty body if successful.
- *          - status code 500 if processing failed.
- */
+// TODO - Doc me
 export const handler: APIGatewayProxyHandler = middy(async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   logger.info('Processing event: ', event);
 

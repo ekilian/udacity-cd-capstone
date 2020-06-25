@@ -10,6 +10,7 @@ import { checkNumberParameters } from '../../../../utils/validation';
 const dbClient = new AWS.DynamoDB.DocumentClient()
 const logger = createLogger('GetWorkCalendar');
 
+
 /**
  * Function: GetWorkSchedule.
  *
@@ -18,7 +19,6 @@ const logger = createLogger('GetWorkCalendar');
  * @param event - The Event-Proxy passed from API Gateway.
  * @returns Response with status code 200 and the result aa body if successful, or status code 500 if processing failed.
  */
-// FIXME Refactor
 export const handler: APIGatewayProxyHandler = middy(async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   logger.info('Processing event: ', event);
 

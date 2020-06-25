@@ -3,25 +3,22 @@ import middy from '@middy/core'
 import cors from '@middy/http-cors'
 
 import { createLogger } from '../../../../utils/logger';
-import { readAllUser } from '../../../../business/users';
+import { config } from '../../../../config';
+import { listUsers } from '../../../../cognito/accessCognito';
 
 const logger = createLogger('GetUsers');
 
-/**
- * Function: GetUsers.
- *
- * API-Endpoint for method GET at /users/.
- *
- * @param event - The Event-Proxy passed from API Gateway.
- * @returns Response with:
- *          - status code 200 and List of Users as JSON in body.
- *          - status code 500 if processing failed.
- */
+// FIXME - Refactor
+// TODO - Doc me
 export const handler: APIGatewayProxyHandler = middy(async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   logger.info('Processing event: ', event);
 
+  var params = {
+    UserPoolId: config.cognito.USER_POOL_ID
+  };
+
   try {
-    const result = await readAllUser();
+    const result = await listUsers(params);
     return {
       statusCode: 200,
       body: JSON.stringify(result.Users)

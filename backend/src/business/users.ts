@@ -42,6 +42,7 @@ export const readAllUser = async () => {
   }
 }
 
+
 /**
  *
  * @param parsedBody

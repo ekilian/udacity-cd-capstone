@@ -1,3 +1,7 @@
+- Master: [![Build Status](https://travis-ci.org/ekilian/udacity-cd-capstone.svg?branch=master)](https://travis-ci.org/ekilian/udacity-cd-capstone) 
+- Stage: [![Build Status](https://travis-ci.org/ekilian/udacity-cd-capstone.svg?branch=stage)](https://travis-ci.org/ekilian/udacity-cd-capstone)
+
+
 # udacity-cd-capstone
 
 Capstone project for my Udacity Cloud Developer nanodegree.
