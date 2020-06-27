@@ -1,5 +1,5 @@
 GetWorkSchedule:
-  handler: src/http/lambda/v1/schedule/getWorkSchedule.handler
+  handler: src/lambda/http/v1/schedule/getWorkSchedule.handler
   events:
     - http:
         method: get
@@ -16,7 +16,7 @@ GetWorkSchedule:
       Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.SCHEDULE_TABLE}
 
 CreateWorkSchedule:
-  handler: src/http/lambda/v1/schedule/createWorkSchedule.handler
+  handler: src/lambda/http/v1/schedule/createWorkSchedule.handler
   events:
     - http:
         method: post
@@ -27,15 +27,17 @@ CreateWorkSchedule:
           authorizerId: { Ref: MyApiGatewayAuthorizer }
         request:
           schema:
-            application/json: ${file(src/http/lambda/v1/validation/create-schedule-schema.json)}
+            application/json: ${file(src/lambda/http/v1/validation/create-schedule-schema.json)}
   iamRoleStatements:
     - Effect: Allow
       Action:
         - dynamodb:PutItem
+        - xray:PutTraceSegments
+        - xray:PutTelemetryRecords
       Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.SCHEDULE_TABLE}
 
 DeleteWorkSchedule:
-  handler: src/http/lambda/v1/schedule/deleteWorkSchedule.handler
+  handler: src/lambda/http/v1/schedule/deleteWorkSchedule.handler
   events:
     - http:
         method: delete

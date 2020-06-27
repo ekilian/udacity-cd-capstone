@@ -11,7 +11,6 @@ import { Auth } from 'aws-amplify';
  */
 export const getWorkSchedule = async (year:number, month:number):Promise<PlaningCalendar> => {
   const idToken = (await Auth.currentSession()).getIdToken();
-  console.log(idToken.getJwtToken());
   const result = await axios.get(`${config.apiGateway.ENDPOINT_URL}/${config.STAGE}/${config.API_VERSION}/schedule/${year}/${month}`, {
     headers: {
       Authorization: idToken.getJwtToken()

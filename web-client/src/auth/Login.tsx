@@ -45,15 +45,12 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  function validateForm() {
-    return email.length > 0 && password.length > 0;
-  }
-
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     try {
-      await Auth.signIn(email, password);
+      const result = await Auth.signIn(email, password);
       appContext.setIsAuthenticated(true);
+      console.log(await (await Auth.currentSession()).getIdToken().getJwtToken());
       history.push("/");
     } catch (e) {
       alert(e.message);

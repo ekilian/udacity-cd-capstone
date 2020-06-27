@@ -34,7 +34,7 @@ export const DashboardMenu: React.FC<{}> = () => {
     }
 
     return (
-      <ListItem button component={Link} to="/employees">
+      <ListItem button component={Link} to="/users">
         <ListItemIcon>
           <PeopleIcon />
         </ListItemIcon>

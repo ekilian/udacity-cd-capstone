@@ -7,6 +7,7 @@
     "test": "mocha -r ts-node/register test/**/*.test.ts"
   },
   "dependencies": {
+    "aws-xray-sdk": "^3.1.0",
     "@middy/core": "^1.0.0",
     "@middy/http-cors": "^1.0.0",
     "@middy/http-json-body-parser": "^1.0.0",
@@ -27,8 +28,10 @@
     "serverless": "^1.73.1",
     "serverless-aws-documentation": "^1.1.0",
     "serverless-dynamodb-local": "^0.2.39",
+    "serverless-export-env": "github:arabold/serverless-export-env",
     "serverless-iam-roles-per-function": "^2.0.2",
     "serverless-offline": "^6.4.0",
+    "serverless-plugin-tracing": "^2.0.0",
     "serverless-reqvalidator-plugin": "^1.0.3",
     "serverless-webpack": "^5.2.0",
     "ts-loader": "^5.3.3",

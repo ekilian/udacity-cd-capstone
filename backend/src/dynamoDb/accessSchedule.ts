@@ -1,13 +1,10 @@
-
 import * as AWS from 'aws-sdk';
-
 import { config } from '../config';
 import { createLogger } from '../utils/logger';
 
 
 const dbClient = new AWS.DynamoDB.DocumentClient()
 const logger = createLogger('AccessSchedule');
-
 
 /**
  * TODO: docme

@@ -85,13 +85,16 @@ export const getUsers = async (onlyEnabled:boolean): Promise<User[]> => {
       if (attr.Name === 'custom:role') {
         user.customrole = attr.Value;
       }
+      if (attr.Name === 'custom:imageUrl') {
+        user.customimageUrl = attr.Value;
+      }
     })
     workerArray.push(user);
   });
   return workerArray;
 }
 
-export const createUser = async (userToCreate: User): Promise<boolean> => {
+export const createUser = async (userToCreate: User, fileToUpload?:any): Promise<boolean> => {
   const userAttributes = [];
   for (let [key, value] of Object.entries(userToCreate)) {
     if (key.startsWith('custom')) {
@@ -123,6 +126,11 @@ export const createUser = async (userToCreate: User): Promise<boolean> => {
 
   try {
     const idToken = (await Auth.currentSession()).getIdToken();
+    const attachmentUrl = await getUploadUrl(userToCreate.username, idToken.getJwtToken())
+    params.UserAttributes.push({
+      'Name': "custom:imageUrl",
+      "Value": attachmentUrl
+    })
     await axios.post(`${config.apiGateway.ENDPOINT_URL}/${config.STAGE}/${config.API_VERSION}/users`, params, {
       headers: {
         Authorization: idToken.getJwtToken()
@@ -141,10 +149,11 @@ export const createUser = async (userToCreate: User): Promise<boolean> => {
  * @param userToEdit
  * @param authToken
  */
-export const editUser = async (userToEdit: User): Promise<boolean> => {
+export const editUser = async (userToEdit: User, fileToUpload?:any): Promise<boolean> => {
   const userAttributes = [];
   for (let [key, value] of Object.entries(userToEdit)) {
-    if (key.startsWith('custom')) {
+    // Custom attributes have prefix custom:
+    if (key.startsWith('custom') && !(key.endsWith('imageUrl'))) {
       userAttributes.push({
         'Name': 'custom:' + key.substr(6),
         "Value": value
@@ -174,7 +183,15 @@ export const editUser = async (userToEdit: User): Promise<boolean> => {
 
   try {
     const idToken = (await Auth.currentSession()).getIdToken();
-    await axios.patch(`${config.apiGateway.ENDPOINT_URL}/${config.STAGE}/${config.API_VERSION}/users/${userToEdit.username}`, params, {
+    if(fileToUpload) {
+      const responseData = await getUploadUrl(userToEdit.username, idToken.getJwtToken())
+      params.UserAttributes.push({
+        'Name': "custom:imageUrl",
+        "Value": responseData.attachmentUrl
+      })
+      await uploadFile(responseData.signedUrl, fileToUpload);
+    }
+    await axios.patch(`${config.apiGateway.ENDPOINT_URL}/${config.STAGE}/${config.API_VERSION}/users/`, params, {
       headers: {
         Authorization: idToken.getJwtToken()
       }
@@ -204,4 +221,17 @@ export const deleteUser = async (username:string): Promise<boolean> => {
     console.log(error);
   }
   return false;
+}
+
+const getUploadUrl = async (username:string, jwtToken:string): Promise<any> => {
+  const response = await axios.post(`${config.apiGateway.ENDPOINT_URL}/${config.STAGE}/${config.API_VERSION}/users/attachment/${username}`, {}, {
+    headers: {
+      Authorization: jwtToken
+    }
+  });
+  return response.data;
+}
+
+const uploadFile = async (uploadUrl: string, file: Buffer): Promise<void> => {
+  await axios.put(uploadUrl, file)
 }

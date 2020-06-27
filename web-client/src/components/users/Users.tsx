@@ -4,42 +4,31 @@ import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
 import { Card, Button, Divider, Grid, Slide, Backdrop, CircularProgress } from '@material-ui/core';
 import { TextField, RadioGroup, FormControlLabel, Radio } from '@material-ui/core';
 import { Save, Delete, Edit, Close, Person, AlternateEmail, PhoneAndroid } from '@material-ui/icons'
+import { Skeleton } from '@material-ui/lab'
 
 import { deleteUser, getUsers, editUser, createUser } from '../../api/UsersApi';
 import { User } from '../../model/User';
 import UserActionButton from './UserActionButton';
 import { useHistory } from 'react-router-dom';
+import { IAuthContext, useAuthContext } from '../../auth/AuthContext';
 
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
-    root: {
-      flexGrow: 1,
-    },
     paperOffice: {
       height: 300,
-      width: 300,
+      width: 350,
       margin: 10,
       boxShadow: '0px 0px 8px 5px rgba(111, 240, 89, 0.6)',
     },
     paperWorker: {
       height: 300,
-      width: 280,
+      width: 350,
       margin: 10,
       boxShadow: '0px 0px 8px 5px rgba(89, 142, 222, 0.6)',
     },
     divider: {
       padding: 10,
-    },
-    extendedIcon: {
-      marginRight: theme.spacing(1),
-    },
-    drawerPaper: {
-      paddingTop: '50px',
-      zIndex: 500,
-      width: '300px',
-      left: 240,
-      top: 64,
     },
     textField: {
       paddingBottom: '10px'
@@ -59,30 +48,51 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const initUser = {
   username: '',
+  password: '',
   given_name: '',
   family_name: '',
   address: '',
-  phone_number: '',
+  phone_number: '(+51)',
   email: '',
-  customrole: 'Worker'
+  customrole: 'Worker',
+  customimageUrl: ''
 } as User;
 
-export default function Employees() {
+export interface UserFileProp {
+  selectedFile:any
+}
+
+export const Users: React.FC = () => {
   const history = useHistory();
   const classes = useStyles();
+  const authContext:IAuthContext = useAuthContext();
   const [refresh, setRefresh] = React.useState(0);
   const [open, setOpen] = React.useState(false);
-  const [backdropOpen, setBackdropOpen] = React.useState(false);
+  const [backdropOpen, setBackdrop] = React.useState(false);
   const [user, setUser] = React.useState(initUser);
+  const [file, setFile] = React.useState({} as UserFileProp);
   const [editMode, setEditMode] = React.useState(false);
-  const [worker, setWorker] = useState({
-    list: [] as User[]
-  });
+  const [worker, setWorker] = useState({list: [] as User[]});
+  const [usernameValidation, setUsernameValidation] = React.useState('');
+
+  useEffect(() => {
+    if(!authContext.isAuthenticated) {
+      history.push("/");
+      return
+    }
+    const callApi = async () => {
+      setBackdrop(true);
+      const workerArray = await getUsers(true);
+      setWorker({ list: workerArray});
+      setBackdrop(false);
+    }
+    callApi();
+  }, [refresh]);
 
   const handleDeleteUser = async (user: User) => {
     const result = await deleteUser(user.username);
     if (result) {
-      history.push("/employees")
+      history.push("/users")
     }
   }
 
@@ -93,28 +103,57 @@ export default function Employees() {
   }
 
   const handleCreateUser = () => {
+    console.log(initUser)
     setUser(initUser);
     setEditMode(false);
     setOpen(true);
   }
 
   const handleSave = async (user: User): Promise<void> => {
-    setBackdropOpen(backdropOpen => !backdropOpen)
+    setBackdrop(true);
     if (editMode) {
-      await editUser(user);
+      await editUser(user, file.selectedFile);
     } else {
-      await createUser(user);
+      await createUser(user, file.selectedFile);
     }
     setRefresh(refresh => refresh + 1);
     setOpen(false);
-    setBackdropOpen(backdropOpen => !backdropOpen)
+    setBackdrop(false)
   }
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
+    if(event.target.name === 'username') {
+      if(validateUsername(event.target.value)) {
+        setUsernameValidation("Username already exists")
+      } else {
+        setUsernameValidation("")
+      }
+    }
     setUser({
       ...user,
       [event.target.name]: value
+    });
+  }
+
+  const validateUsername = (value:string):boolean => {
+    let result:boolean = false;
+    worker.list.forEach(element => {
+      if(element.username === value) {
+        result = true;
+      }
+    });
+    return result;
+  }
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    let selectedFile;
+    if(event.target.files) {
+      selectedFile = event.target.files[0];
+    }
+    setFile({
+      ...file,
+      selectedFile
     });
   }
 
@@ -123,32 +162,28 @@ export default function Employees() {
     setOpen(false);
   }
 
-  useEffect(() => {
-    const callApi = async () => {
-      const workerArray = await getUsers(true);
-      setWorker({ list: workerArray });
-    }
-    callApi();
-  }, [refresh]);
 
   return (
-    <Grid container className={classes.root} direction="row" justify="center">
+    <Grid container direction="row" justify="center">
       <Grid container direction="column" className={open ? classes.drawerFormOpen : classes.drawerFormClose} alignItems="stretch">
         <Slide direction="right" in={open} mountOnEnter unmountOnExit>
           <div>
-            <form className={classes.root} noValidate autoComplete="off">
+            <form noValidate autoComplete="off">
               <Grid container xl spacing={2} direction="column">
                 <Grid item>
-                  <TextField id="outlined-basic" label="Username" variant="outlined" name="username"
+                  <TextField id="username" label="Username" variant="outlined" name="username" autoComplete="new-username" fullWidth
                     InputLabelProps={{ shrink: true }}
                     value={user.username}
                     onChange={handleChange}
                     disabled={editMode}
                     required
+                    helperText={usernameValidation}
+                    error={usernameValidation !== ''}
                   />
                 </Grid>
                 <Grid item>
-                  <TextField id="outlined-basic" label="Password" variant="outlined" name="password"
+                  <TextField id="password" label="Password" variant="outlined" name="password" autoComplete="new-password" fullWidth
+                    type="password"
                     InputLabelProps={{ shrink: true }}
                     value={user.password}
                     onChange={handleChange}
@@ -157,20 +192,22 @@ export default function Employees() {
                   />
                 </Grid>
                 <Grid item>
-                  <TextField id="outlined-basic" label="Surname" variant="outlined" name="given_name"
+                  <TextField id="surname" label="Surname" variant="outlined" name="given_name" fullWidth
                     InputLabelProps={{ shrink: true }}
+                    inputProps={{ maxLength: 25 }}
                     value={user.given_name}
                     onChange={handleChange} />
                 </Grid>
                 <Grid item>
-                  <TextField id="outlined-basic" label="Name" variant="outlined" name="family_name"
+                  <TextField id="name" label="Name" variant="outlined" name="family_name" fullWidth
                     InputLabelProps={{ shrink: true }}
+                    inputProps={{ maxLength: 25 }}
                     value={user.family_name}
                     onChange={handleChange}
                   />
                 </Grid>
                 <Grid item>
-                  <TextField id="outlined-basic" label="E-Mail" variant="outlined" name="email"
+                  <TextField id="email" label="E-Mail" variant="outlined" name="email" fullWidth
                     InputLabelProps={{ shrink: true }}
                     value={user.email}
                     disabled={editMode}
@@ -179,10 +216,18 @@ export default function Employees() {
                   />
                 </Grid>
                 <Grid item>
-                  <TextField id="outlined-basic" label="Phone number" variant="outlined"
-                    name="phone_number" InputLabelProps={{ shrink: true }}
+                  <TextField id="phone" label="Phone number" variant="outlined" name="phone_number" fullWidth
+                    InputLabelProps={{ shrink: true }}
                     value={user.phone_number}
-                    onChange={handleChange} />
+                    onChange={handleChange}
+                  />
+                </Grid>
+                <Grid item>
+                  <TextField id="image" label="Image" variant="outlined" fullWidth
+                    name="customimageUrl" InputLabelProps={{ shrink: true }}
+                    type="file"
+                    value={user.customimageUrl}
+                    onChange={handleFileChange} />
                 </Grid>
                 <Grid container direction="row" justify="center">
                   <Grid item>
@@ -223,48 +268,61 @@ export default function Employees() {
         </Slide>
       </Grid>
       <Grid container direction="row" style={{ flex: 75}}>
-      <Backdrop className={classes.backdrop} open={backdropOpen} onClick={handleClose}>
-        <CircularProgress color="inherit" />
-      </Backdrop>
+        <Backdrop className={classes.backdrop} open={backdropOpen} onClick={handleClose}>
+          <CircularProgress color="inherit" />
+        </Backdrop>
         {worker.list.map((value) => (
           <Card key={value.username} className={value.customrole === 'Office' ? classes.paperOffice : classes.paperWorker}>
-            <Grid container spacing={2} direction="column">
-              <Grid item>
-                <p>{value.username}</p>
+            <Grid container direction="row" style={{ flex: 80}}>
+              <Grid container direction="column" style={{ flex: 30}}>
+                <Grid item>
+                  {value.customimageUrl ? (
+                    <img style={{ maxWidth: "100px", imageOrientation: "from-image" }}
+                      src={value.customimageUrl}
+                    />
+                  ) : (
+                    <Skeleton variant="rect" width={120} height={150} />
+                  )}
+                </Grid>
               </Grid>
-              <Divider />
-              <Grid item>
-                <div style={{
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center'
-                }}>
-                  <Person />
-                  <p>{value.given_name} {value.family_name}</p>
-                </div>
-              </Grid>
-              <Grid item>
-                <div style={{
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center'
-                }}>
-                  <AlternateEmail />
-                  <p>{value.email}</p>
-                </div>
-              </Grid>
-              <Grid item>
-                <div style={{
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center'
-                }}>
-                  <PhoneAndroid />
-                  <p>{value.phone_number}</p>
-                </div>
+              <Grid container direction="column" style={{ flex: 70}}>
+                <Grid item>
+                  <p>{value.username}</p>
+                </Grid>
+                <Divider />
+                <Grid item>
+                  <div style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                  }}>
+                    <Person />
+                    <p>{value.given_name} {value.family_name}</p>
+                  </div>
+                </Grid>
+                <Grid item>
+                  <div style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                  }}>
+                    <AlternateEmail />
+                    <p>{value.email}</p>
+                  </div>
+                </Grid>
+                <Grid item>
+                  <div style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                  }}>
+                    <PhoneAndroid />
+                    <p>{value.phone_number}</p>
+                  </div>
+                </Grid>
               </Grid>
             </Grid>
-            <Grid container spacing={2} justify="center">
+            <Grid container spacing={2} justify="center" style={{ flex: 20 }} alignContent="flex-end">
               <Grid item>
                 <Button
                   id="edit"
@@ -295,3 +353,5 @@ export default function Employees() {
     </Grid>
   )
 }
+
+export default Users;

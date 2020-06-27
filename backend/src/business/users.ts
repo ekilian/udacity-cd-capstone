@@ -1,6 +1,7 @@
 import { config } from '../config';
 import { adminCreateUser, adminSetUserPassword, adminDeleteUser, adminUpdateUserAttributes, listUsers, adminGetUser } from '../cognito/accessCognito';
 import { createLogger } from '../utils/logger';
+import { getUploadUrl } from '../utils/images';
 
 const logger = createLogger('AccessCognito');
 
@@ -52,7 +53,7 @@ export const createNewUser = async (parsedBody:any) => {
     UserPoolId: config.cognito.USER_POOL_ID,
     Username: parsedBody.Username,
     TemporaryPassword: parsedBody.Password,
-    //DesiredDeliveryMediums: [ "EMAIL" ],
+    DesiredDeliveryMediums: [ "EMAIL" ],
     UserAttributes: parsedBody.UserAttributes
   };
   addUpdatedAtParam(params);
@@ -106,6 +107,25 @@ export const deleteUser = async (username:string) => {
     return await adminDeleteUser(params);
   } catch(err) {
     logger.error('Failed to call Users.adminDeleteUser()', err);
+    throw err;
+  }
+}
+
+/**
+ * Generates a presigned Url for the S3 Bucket.
+ * @param userId - The Id of the User.
+ */
+export const generateSignedUrl = async (username: string): Promise<object> => {
+  try {
+    const signedUrl = await getUploadUrl(username);
+    const attachmentUrl = `https://${config.BUCKET_NAME}.s3.amazonaws.com/${username}`;
+    logger.info('Generated presigned URL', { 'url': signedUrl, 'attachmentUrl': attachmentUrl });
+    return {
+      signedUrl: signedUrl,
+      attachmentUrl: attachmentUrl
+    };
+  } catch (err) {
+    logger.error('Failed to generate signed URL');
     throw err;
   }
 }

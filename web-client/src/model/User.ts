@@ -6,6 +6,7 @@ export interface User {
   family_name?:string,
   address?:string,
   phone_number?:string,
-  email?:string
-  customrole?: string
+  email?:string,
+  customrole?: string,
+  customimageUrl?:string
 }
