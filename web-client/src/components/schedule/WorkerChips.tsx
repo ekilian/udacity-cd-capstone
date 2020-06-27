@@ -48,7 +48,7 @@ const WorkerChips: React.FC<WorkerChipsProps> = (props) => {
     return (
       <div className={classes.fab} >
         {worker.list.map((value) => (
-          <DraggableWorker key={uuid()} name={value.username} type={ItemTypes.WORKER} isDropped={false} isEditable={true}/>
+          <DraggableWorker key={uuid()} name={`${value.given_name} ${value.family_name?.charAt(0)}.`} type={ItemTypes.WORKER} isDropped={false} isEditable={true}/>
         ))}
       </div>
     );

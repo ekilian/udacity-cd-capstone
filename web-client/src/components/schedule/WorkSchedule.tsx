@@ -85,6 +85,26 @@ const WorkSchedule: React.FC<{}> = () => {
   const [backdropOpen, setBackdropOpen] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
 
+  useEffect(() => {
+    const callApi = async () => {
+      setBackdropOpen(backdropOpen => !backdropOpen);
+      const loadedSchedule = await getWorkSchedule(parseInt(year), parseInt(month));
+      if(!loadedSchedule) {
+        setWorkPlan({ days: [] as PlaningDay[] } as PlaningCalendar);
+        const newSchedule = createWorkingPlan(parseInt(year), parseInt(month));
+        setWorkPlan(newSchedule);
+        setLoadedSchedule(false);
+      } else {
+        setWorkPlan({ days: [] as PlaningDay[] } as PlaningCalendar);
+        setWorkPlan(loadedSchedule);
+        setLoadedSchedule(true);
+      }
+      setScheduleChanged(false);
+      setBackdropOpen(backdropOpen => !backdropOpen);
+    }
+    callApi();
+  }, [month, year]);
+
   const handleChange = (event: React.ChangeEvent<{ value: unknown }>) => {
     const newMonth = event.target.value as string
     setMonth(newMonth);
@@ -136,26 +156,6 @@ const WorkSchedule: React.FC<{}> = () => {
     setLoadedSchedule(false)
     setBackdropOpen(backdropOpen => !backdropOpen);
   }
-
-  useEffect(() => {
-    const callApi = async () => {
-      setBackdropOpen(backdropOpen => !backdropOpen);
-      const loadedSchedule = await getWorkSchedule(parseInt(year), parseInt(month));
-      if(!loadedSchedule) {
-        setWorkPlan({ days: [] as PlaningDay[] } as PlaningCalendar);
-        const newSchedule = createWorkingPlan(parseInt(year), parseInt(month));
-        setWorkPlan(newSchedule);
-        setLoadedSchedule(false);
-      } else {
-        setWorkPlan({ days: [] as PlaningDay[] } as PlaningCalendar);
-        setWorkPlan(loadedSchedule);
-        setLoadedSchedule(true);
-      }
-      setScheduleChanged(false);
-      setBackdropOpen(backdropOpen => !backdropOpen);
-    }
-    callApi();
-  }, [month, year]);
 
   return (
     <DndProvider backend={HTML5Backend}>

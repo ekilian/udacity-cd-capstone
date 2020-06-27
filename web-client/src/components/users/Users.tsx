@@ -1,50 +1,18 @@
 import React, { useState, useEffect } from 'react';
-
-import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
-import { Card, Button, Divider, Grid, Slide, Backdrop, CircularProgress } from '@material-ui/core';
+import { useHistory } from 'react-router-dom';
+import { Button, Grid, Slide, Backdrop, CircularProgress } from '@material-ui/core';
 import { TextField, RadioGroup, FormControlLabel, Radio } from '@material-ui/core';
-import { Save, Delete, Edit, Close, Person, AlternateEmail, PhoneAndroid } from '@material-ui/icons'
-import { Skeleton } from '@material-ui/lab'
+import { Save, Edit, Close} from '@material-ui/icons'
 
 import { deleteUser, getUsers, editUser, createUser } from '../../api/UsersApi';
 import { User } from '../../model/User';
 import UserActionButton from './UserActionButton';
-import { useHistory } from 'react-router-dom';
+
 import { IAuthContext, useAuthContext } from '../../auth/AuthContext';
+import { useStyles } from './UsersStyles';
+import { validateUsername } from './UsersValidation';
+import UsersGrid from './UsersGrid';
 
-
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    paperOffice: {
-      height: 300,
-      width: 350,
-      margin: 10,
-      boxShadow: '0px 0px 8px 5px rgba(111, 240, 89, 0.6)',
-    },
-    paperWorker: {
-      height: 300,
-      width: 350,
-      margin: 10,
-      boxShadow: '0px 0px 8px 5px rgba(89, 142, 222, 0.6)',
-    },
-    divider: {
-      padding: 10,
-    },
-    textField: {
-      paddingBottom: '10px'
-    },
-    drawerFormOpen: {
-      flex: 25,
-      maxWidth: 300,
-    },
-    drawerFormClose: {
-      flex: 0,
-    },
-    backdrop: {
-      zIndex: theme.zIndex.drawer + 1,
-      color: '#fff',
-    },
-  }));
 
 const initUser = {
   username: '',
@@ -52,7 +20,7 @@ const initUser = {
   given_name: '',
   family_name: '',
   address: '',
-  phone_number: '(+51)',
+  phone_number: '+51',
   email: '',
   customrole: 'Worker',
   customimageUrl: ''
@@ -77,7 +45,7 @@ export const Users: React.FC = () => {
 
   useEffect(() => {
     if(!authContext.isAuthenticated) {
-      history.push("/");
+      history.push("/login");
       return
     }
     const callApi = async () => {
@@ -114,7 +82,7 @@ export const Users: React.FC = () => {
     if (editMode) {
       await editUser(user, file.selectedFile);
     } else {
-      await createUser(user, file.selectedFile);
+      await createUser(user);
     }
     setRefresh(refresh => refresh + 1);
     setOpen(false);
@@ -124,7 +92,7 @@ export const Users: React.FC = () => {
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
     if(event.target.name === 'username') {
-      if(validateUsername(event.target.value)) {
+      if(validateUsername(worker.list, event.target.value)) {
         setUsernameValidation("Username already exists")
       } else {
         setUsernameValidation("")
@@ -134,16 +102,6 @@ export const Users: React.FC = () => {
       ...user,
       [event.target.name]: value
     });
-  }
-
-  const validateUsername = (value:string):boolean => {
-    let result:boolean = false;
-    worker.list.forEach(element => {
-      if(element.username === value) {
-        result = true;
-      }
-    });
-    return result;
   }
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -196,7 +154,9 @@ export const Users: React.FC = () => {
                     InputLabelProps={{ shrink: true }}
                     inputProps={{ maxLength: 25 }}
                     value={user.given_name}
-                    onChange={handleChange} />
+                    onChange={handleChange}
+                    required
+                  />
                 </Grid>
                 <Grid item>
                   <TextField id="name" label="Name" variant="outlined" name="family_name" fullWidth
@@ -204,6 +164,7 @@ export const Users: React.FC = () => {
                     inputProps={{ maxLength: 25 }}
                     value={user.family_name}
                     onChange={handleChange}
+                    required
                   />
                 </Grid>
                 <Grid item>
@@ -267,89 +228,11 @@ export const Users: React.FC = () => {
           </div>
         </Slide>
       </Grid>
-      <Grid container direction="row" style={{ flex: 75}}>
-        <Backdrop className={classes.backdrop} open={backdropOpen} onClick={handleClose}>
-          <CircularProgress color="inherit" />
-        </Backdrop>
-        {worker.list.map((value) => (
-          <Card key={value.username} className={value.customrole === 'Office' ? classes.paperOffice : classes.paperWorker}>
-            <Grid container direction="row" style={{ flex: 80}}>
-              <Grid container direction="column" style={{ flex: 30}}>
-                <Grid item>
-                  {value.customimageUrl ? (
-                    <img style={{ maxWidth: "100px", imageOrientation: "from-image" }}
-                      src={value.customimageUrl}
-                    />
-                  ) : (
-                    <Skeleton variant="rect" width={120} height={150} />
-                  )}
-                </Grid>
-              </Grid>
-              <Grid container direction="column" style={{ flex: 70}}>
-                <Grid item>
-                  <p>{value.username}</p>
-                </Grid>
-                <Divider />
-                <Grid item>
-                  <div style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center'
-                  }}>
-                    <Person />
-                    <p>{value.given_name} {value.family_name}</p>
-                  </div>
-                </Grid>
-                <Grid item>
-                  <div style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center'
-                  }}>
-                    <AlternateEmail />
-                    <p>{value.email}</p>
-                  </div>
-                </Grid>
-                <Grid item>
-                  <div style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center'
-                  }}>
-                    <PhoneAndroid />
-                    <p>{value.phone_number}</p>
-                  </div>
-                </Grid>
-              </Grid>
-            </Grid>
-            <Grid container spacing={2} justify="center" style={{ flex: 20 }} alignContent="flex-end">
-              <Grid item>
-                <Button
-                  id="edit"
-                  variant="contained"
-                  color="primary"
-                  size="small"
-                  startIcon={<Delete />}
-                  onClick={() => handleDeleteUser(value)}>
-                  Delete
-                  </Button>
-              </Grid>
-              <Grid item>
-                <Button
-                  id="delete"
-                  variant="contained"
-                  color="primary"
-                  size="small"
-                  startIcon={<Edit />}
-                  onClick={() => handleEditUser(value)}>
-                  Edit
-                  </Button>
-              </Grid>
-            </Grid>
-          </Card>
-        ))}
-      </Grid>
+      <UsersGrid workers={worker.list} handleDeleteUser={handleDeleteUser} handleEditUser={handleEditUser} />
       <UserActionButton isActive={!open} handleCreate={() => handleCreateUser()} />
+      <Backdrop className={classes.backdrop} open={backdropOpen} onClick={handleClose}>
+        <CircularProgress color="inherit" />
+      </Backdrop>
     </Grid>
   )
 }

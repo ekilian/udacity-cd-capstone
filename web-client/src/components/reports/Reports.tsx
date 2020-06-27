@@ -10,7 +10,7 @@ import MuiAlert from '@material-ui/lab/Alert';
 
 export interface BarChartData {
   name: string,
-  value: number
+  Hours: number
 }
 
 const HOURS_PER_SHIFT: number = 8;
@@ -49,30 +49,32 @@ const SimpleBarChart: React.FC = () => {
   const buildData = (schedule: PlaningCalendar, workers: User[]): BarChartData[] => {
     let result: BarChartData[] = [];
     workers.forEach(element => {
-      let calcValue: number = countValue(schedule, element.username);
+      let calcValue: number = countValue(schedule, element);
       result.push({
-        name: element.username,
-        value: calcValue
+        name: element.given_name + ' ' + element.family_name?.charAt(0) + '.',
+        Hours: calcValue
       });
     });
+    console.log(result);
     return result;
   }
 
-  const countValue = (plan: PlaningCalendar, worker: String): number => {
+  const countValue = (plan: PlaningCalendar, worker: User): number => {
     let result: number = 0;
+    const nickname = worker.given_name + ' ' + worker.family_name?.charAt(0) + '.'
     plan.days.forEach((day) => {
       day.morning.forEach((element) => {
-        if (element === worker) {
+        if (element === nickname) {
           result += HOURS_PER_SHIFT;
         }
       });
       day.afternoon.forEach((element) => {
-        if (element === worker) {
+        if (element === nickname) {
           result += HOURS_PER_SHIFT;
         }
       });
       day.night.forEach((element) => {
-        if (element === worker) {
+        if (element === nickname) {
           result += HOURS_PER_SHIFT;
         }
       })
@@ -138,7 +140,7 @@ const SimpleBarChart: React.FC = () => {
           <XAxis dataKey="name" />
           <YAxis />
           <Legend />
-          <Bar dataKey="value" fill="#8884d8" barSize={40} />
+          <Bar dataKey="Hours" fill="#8884d8" barSize={40} />
         </BarChart>
       </Grid>
       <Snackbar open={alertOpen} autoHideDuration={5000} onClose={handleClose} anchorOrigin={SNACKBAR_POSITION}

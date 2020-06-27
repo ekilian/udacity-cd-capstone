@@ -66,7 +66,7 @@ export const createNewUser = async (parsedBody:any) => {
   }
   var confirmParams = {
     Password: parsedBody.Password,
-    UserPoolId: parsedBody.UserPoolId,
+    UserPoolId: config.cognito.USER_POOL_ID,
     Username: parsedBody.Username,
     Permanent: true
   };

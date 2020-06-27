@@ -94,7 +94,7 @@ export const getUsers = async (onlyEnabled:boolean): Promise<User[]> => {
   return workerArray;
 }
 
-export const createUser = async (userToCreate: User, fileToUpload?:any): Promise<boolean> => {
+export const createUser = async (userToCreate: User): Promise<boolean> => {
   const userAttributes = [];
   for (let [key, value] of Object.entries(userToCreate)) {
     if (key.startsWith('custom')) {
@@ -103,7 +103,13 @@ export const createUser = async (userToCreate: User, fileToUpload?:any): Promise
         "Value": value
       });
     } else if (key === 'phone_number') {
-      userToCreate.phone_number = '+51' + userToCreate.phone_number
+      if(userToCreate.phone_number && userToCreate.phone_number.length < 10) {
+        // Fake number to fulfill cognito requirements
+        userToCreate.phone_number = '+510000000000';
+      } else if(!userToCreate.phone_number?.startsWith('+51')) {
+        userToCreate.phone_number = '+51' + userToCreate.phone_number
+      }
+      console.log('Phone', userToCreate.phone_number)
       userAttributes.push({
         'Name': key,
         "Value": userToCreate.phone_number
@@ -123,14 +129,8 @@ export const createUser = async (userToCreate: User, fileToUpload?:any): Promise
     "Password": userToCreate.password,
     "UserAttributes": userAttributes
   }
-
   try {
     const idToken = (await Auth.currentSession()).getIdToken();
-    const attachmentUrl = await getUploadUrl(userToCreate.username, idToken.getJwtToken())
-    params.UserAttributes.push({
-      'Name': "custom:imageUrl",
-      "Value": attachmentUrl
-    })
     await axios.post(`${config.apiGateway.ENDPOINT_URL}/${config.STAGE}/${config.API_VERSION}/users`, params, {
       headers: {
         Authorization: idToken.getJwtToken()

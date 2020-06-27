@@ -22,6 +22,7 @@ import SimpleBarChart from '../reports/Reports';
 import Login from '../../auth/Login';
 
 import { useDashboardStyles } from './DashboardStyles';
+import { requireAuth } from '../../auth/AuthUtils';
 
 
 export default function Dashboard() {

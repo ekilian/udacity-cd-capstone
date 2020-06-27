@@ -5,7 +5,7 @@ import './index.css';
 import App from './App';
 import { createBrowserHistory } from 'history'
 
-import { Router, Route } from 'react-router-dom';
+import { Router } from 'react-router-dom';
 import { Context } from './auth/AuthContext';
 import Amplify from 'aws-amplify';
 import config from './config';
