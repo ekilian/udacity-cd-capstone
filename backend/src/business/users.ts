@@ -36,16 +36,17 @@ export const readAllUser = async () => {
     UserPoolId: config.cognito.USER_POOL_ID
   };
   try {
-    return await listUsers(params);
+    const result = await listUsers(params);
+    return result.Users;
   } catch(err) {
-    logger.error('Failed to call Users.adminDeleteUser()', err);
+    logger.error('Failed to call AccessCognito.listUsers()', err);
     throw err;
   }
 }
 
 
 /**
- *
+ * TODO
  * @param parsedBody
  */
 export const createNewUser = async (parsedBody:any) => {
@@ -61,7 +62,7 @@ export const createNewUser = async (parsedBody:any) => {
   try {
     await adminCreateUser(params);
   } catch(err) {
-    logger.error('Failed to call Users.adminCreateUser()', err);
+    logger.error('Failed to call AccessCognito.adminCreateUser()', err);
     throw err;
   }
   var confirmParams = {
@@ -73,7 +74,7 @@ export const createNewUser = async (parsedBody:any) => {
   try {
     return await adminSetUserPassword(confirmParams);
   } catch(err) {
-    logger.error('Failed to call Users.adminSetUserPassword()', err);
+    logger.error('Failed to call AccessCognito.adminSetUserPassword()', err);
     throw err;
   }
 }
@@ -89,7 +90,7 @@ export const updateUser = async (parsedBody:any) => {
   try {
     return await adminUpdateUserAttributes(params);
   } catch(err) {
-    logger.error('Failed to call Users.adminCreateUser()', err);
+    logger.error('Failed to call AccessCognito.adminUpdateUserAttributes()', err);
     throw err;
   }
 }
@@ -106,7 +107,7 @@ export const deleteUser = async (username:string) => {
   try {
     return await adminDeleteUser(params);
   } catch(err) {
-    logger.error('Failed to call Users.adminDeleteUser()', err);
+    logger.error('Failed to call AccessCognito.adminDeleteUser()', err);
     throw err;
   }
 }
@@ -114,6 +115,7 @@ export const deleteUser = async (username:string) => {
 /**
  * Generates a presigned Url for the S3 Bucket.
  * @param userId - The Id of the User.
+ * @returns Object containing the signed URL from S3 and the URL to access the image.
  */
 export const generateSignedUrl = async (username: string): Promise<object> => {
   try {
@@ -125,7 +127,7 @@ export const generateSignedUrl = async (username: string): Promise<object> => {
       attachmentUrl: attachmentUrl
     };
   } catch (err) {
-    logger.error('Failed to generate signed URL');
+    logger.error('Failed to generate signed URL', err);
     throw err;
   }
 }
