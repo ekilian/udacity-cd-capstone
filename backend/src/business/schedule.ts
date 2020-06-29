@@ -5,8 +5,11 @@ const logger = createLogger('Schedule');
 
 
 /**
- * TODO
+ * Reads a specific work schedule form the Database.
  *
+ * @param year - the year of the schedule
+ * @param month - the month of the schedule
+ * @returns The found schedule as JSON. If no schedule is found an empty object is returned.
  */
 export const readWorkSchedule = async (year:number, month:number) => {
   try {
@@ -22,8 +25,9 @@ export const readWorkSchedule = async (year:number, month:number) => {
 }
 
 /**
- * TODO
+ * Creates or updates a work schedule in the Database.
  *
+ * @param schedule - The work schedule as JSON
  */
 export const createOrUpdateSchedule = async (schedule:any):Promise<void>  => {
   const params = {
@@ -42,6 +46,12 @@ export const createOrUpdateSchedule = async (schedule:any):Promise<void>  => {
   }
 }
 
+/**
+ * Removes a work schedule form the Database.
+ *
+ * @param year - the year of the schedule
+ * @param month - the month of the schedule
+ */
 export const removeWorkSchedule = async (year:number, month:number):Promise<void> => {
   try {
     await deleteSchedule(year, month);

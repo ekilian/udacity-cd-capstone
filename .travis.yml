@@ -49,4 +49,4 @@ jobs:
         - sls deploy -v --stage prod
         - cd ../web-client
         - CI=false npm run build
-        - sls client deploy --no-confirm --stage prod
+        - serverless client deploy --no-confirm --stage prod

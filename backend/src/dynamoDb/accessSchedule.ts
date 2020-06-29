@@ -5,7 +5,12 @@ import { createLogger } from '../utils/logger';
 const dbClient = new AWS.DynamoDB.DocumentClient()
 const logger = createLogger('AccessSchedule');
 
-
+/**
+ * Query the DynamoDB for a specific work schedule.
+ *
+ * @param year - Value for the partition key.
+ * @param month - Value for the sort key.
+ */
 export const querySchedule = async (year:number, month:number) => {
   const params = {
     TableName: config.dynamoDb.SCHEDULE_TABLE,
@@ -29,8 +34,10 @@ export const querySchedule = async (year:number, month:number) => {
 }
 
 /**
- * TODO: docme
- * @param schedule
+ * Inserts a work schedule object into the DynamoDB.
+ *
+ * @param year - Value for the partition key.
+ * @param month - Value for the sort key.
  */
 export const insertSchedule = async (params:any):Promise<void>  => {
   params.TableName = config.dynamoDb.SCHEDULE_TABLE;
@@ -43,6 +50,12 @@ export const insertSchedule = async (params:any):Promise<void>  => {
   }
 }
 
+/**
+ * Deletes one dataset from the DynamoDB.
+ *
+ * @param year - Value for the partition key.
+ * @param month - Value for the sort key.
+ */
 export const deleteSchedule = async (year:number, month:number):Promise<void> => {
   const params = {
     TableName: config.dynamoDb.SCHEDULE_TABLE,
