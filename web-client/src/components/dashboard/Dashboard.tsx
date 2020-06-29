@@ -47,6 +47,7 @@ export default function Dashboard() {
 
   function handleLogout() {
     authContext.setIsAuthenticated(false);
+    authContext.setIsOffice(false);
     history.push("/");
   }
 

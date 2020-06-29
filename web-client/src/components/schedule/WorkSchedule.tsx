@@ -6,7 +6,7 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
 import Grid, { GridSpacing } from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
-import { Card, Backdrop, CircularProgress } from '@material-ui/core';
+import { Card, Backdrop, CircularProgress, Button } from '@material-ui/core';
 
 import ScheduleActionButtons from './ScheduleActionButtons';
 import { saveWorkSchedule, deleteWorkSchedule, getWorkSchedule } from '../../api/ScheduleApi';
@@ -18,6 +18,7 @@ import ConfirmDialog from '../common/ConfirmDialog';
 import SelectYearMonth from '../common/SelectYearMonth';
 import { getUsers } from '../../api/UsersApi';
 import { User } from '../../model/User';
+import { IAuthContext, useAuthContext } from '../../auth/AuthContext';
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -25,6 +26,7 @@ const useStyles = makeStyles((theme: Theme) =>
     root: {
       flexGrow: 1,
       width: '93%',
+      paddingBottom: '1em',
     },
     item: {
       flexGrow: 1,
@@ -83,6 +85,7 @@ const WorkSchedule: React.FC<{}> = () => {
   const [isEditable, setEditable] = useState(true);
   const [backdropOpen, setBackdropOpen] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const authContext:IAuthContext = useAuthContext();
 
   useEffect(() => {
     const callApi = async () => {
@@ -168,12 +171,43 @@ const WorkSchedule: React.FC<{}> = () => {
     setBackdropOpen(backdropOpen => !backdropOpen);
   }
 
+  const buttons = () => {
+    return (
+      <Grid container spacing={3} className={classes.root}>
+        <Grid item>
+          <Button id="thisMonth"
+            variant="contained"
+            color="primary"
+            size="small"
+            onClick={() => { setMonth((new Date().getMonth() + 1).toString())}}>
+            This month
+          </Button>
+        </Grid>
+        <Grid item>
+          <Button
+            id="nextMonth"
+            variant="contained"
+            color="primary"
+            size="small"
+            onClick={() => { setMonth((new Date().getMonth() + 2).toString())}}>
+            Next month
+          </Button>
+        </Grid>
+      </Grid>
+    )
+  }
+
   return (
     <DndProvider backend={HTML5Backend}>
       <Grid container className={classes.root} spacing={3}>
-        <SelectYearMonth year={year} month={month}
-              handleYearChange={handleYearChange}
-              handleMonthChange={handleMonthChange}/>
+        {authContext.isOffice && (
+          <SelectYearMonth year={year} month={month}
+                handleYearChange={handleYearChange}
+                handleMonthChange={handleMonthChange}/>
+        )}
+        {!authContext.isOffice && (
+          buttons()
+        )}
         {/* Headline */}
         <Grid container spacing={spacing}>
           {DAYS_OF_WEEK.map((value) => (
@@ -190,7 +224,7 @@ const WorkSchedule: React.FC<{}> = () => {
             <Grid key={index} item className={classes.item}>
               {value.active
                 ? <WorkingDay index={index} day={value} workers={workers.list}
-                    isEditable={isEditable}
+                    isEditable={isEditable && authContext.isOffice}
                     updateParent={(value, index) => updateParent(value, index)} />
                 : <Card className={classes.paperGray} />
               }
@@ -202,13 +236,17 @@ const WorkSchedule: React.FC<{}> = () => {
       <Backdrop className={classes.backdrop} open={backdropOpen}>
         <CircularProgress color="inherit" />
       </Backdrop>
-      <WorkerChips isEditable={isEditable} workers={workers.list} />
-      <ScheduleActionButtons key="fab"
-              isEditable={isEditable}
-              isSaveActive={scheduleChanged}
-              isDeleteActive={loadedSchedule}
-              handleSave={handleSave}
-              handleDelete={confirmDelete} />
+      {authContext.isOffice && (
+        <WorkerChips isEditable={isEditable} workers={workers.list} />
+      )}
+      { authContext.isOffice && (
+        <ScheduleActionButtons key="fab"
+                              isEditable={isEditable}
+                              isSaveActive={scheduleChanged}
+                              isDeleteActive={loadedSchedule}
+                              handleSave={handleSave}
+                              handleDelete={confirmDelete} />
+          )}
     </DndProvider>
   );
 }
