@@ -3,12 +3,11 @@ import { config } from '../config';
 import { createLogger } from '../utils/logger';
 
 
-const logger = createLogger('AccessCognito');
-
 const cognitoClient = new AWS.CognitoIdentityServiceProvider({
   apiVersion: config.cognito.COGNITO_VERSION,
   region: config.AWS_REGION
 });
+const logger = createLogger('AccessCognito');
 
 /**
  *

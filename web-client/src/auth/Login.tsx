@@ -5,8 +5,6 @@ import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import TextField from '@material-ui/core/TextField';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
@@ -28,7 +26,7 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: theme.palette.secondary.main,
   },
   form: {
-    width: '100%', // Fix IE 11 issue.
+    width: '100%', // IE 11 issue.
     marginTop: theme.spacing(1),
   },
   submit: {
@@ -42,21 +40,23 @@ export default function Login() {
 
   const classes = useStyles();
 
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-
-  function validateForm() {
-    return email.length > 0 && password.length > 0;
-  }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     try {
-      await Auth.signIn(email, password);
-      appContext.setIsAuthenticated(true);
-      history.push("/");
-    } catch (e) {
-      alert(e.message);
+      const result = await Auth.signIn(username, password);
+      if(result) {
+        appContext.setIsAuthenticated(true);
+        if(result.attributes['custom:role'] === 'Office') {
+          appContext.setIsOffice(true);
+        }
+        console.log(await (await Auth.currentSession()).getIdToken().getJwtToken());
+        history.push("/");
+      }
+    } catch (err) {
+      console.log(err);
     }
   }
 
@@ -76,12 +76,12 @@ export default function Login() {
             margin="normal"
             required
             fullWidth
-            id="email"
-            label="Email Address"
-            name="email"
-            autoComplete="email"
+            id="username"
+            label="Username"
+            name="username"
+            autoComplete="username"
             autoFocus
-            onChange={e => setEmail(e.target.value)}
+            onChange={e => setUsername(e.target.value)}
           />
           <TextField
             variant="outlined"
@@ -95,17 +95,12 @@ export default function Login() {
             autoComplete="current-password"
             onChange={e => setPassword(e.target.value)}
           />
-          <FormControlLabel
-            control={<Checkbox value="remember" color="primary" />}
-            label="Remember me"
-          />
           <Button
             type="submit"
             fullWidth
             variant="contained"
             color="primary"
             className={classes.submit}
-
           >
             Sign In
           </Button>

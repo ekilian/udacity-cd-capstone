@@ -1,15 +1,13 @@
 import { APIGatewayProxyHandler, APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { createLogger } from '../../../../utils/logger';
-import * as AWS from 'aws-sdk';
 import middy from '@middy/core';
 import cors from '@middy/http-cors';
 
-import { config } from '../../../../config';
 import { checkNumberParameters } from '../../../../utils/validation';
+import { readWorkSchedule } from '../../../../business/schedule';
 
-const dbClient = new AWS.DynamoDB.DocumentClient()
+
 const logger = createLogger('GetWorkCalendar');
-
 
 /**
  * Function: GetWorkSchedule.
@@ -17,7 +15,10 @@ const logger = createLogger('GetWorkCalendar');
  * API-Endpoint for method GET at /schedule/.
  *
  * @param event - The Event-Proxy passed from API Gateway.
- * @returns Response with status code 200 and the result aa body if successful, or status code 500 if processing failed.
+ * @returns Response with status code:
+ *          - 200 and the schedule as JSON in body.
+ *          - 400 if path parameter is missing
+ *          - 500 if processing failed.
  */
 export const handler: APIGatewayProxyHandler = middy(async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   logger.info('Processing event: ', event);
@@ -33,27 +34,11 @@ export const handler: APIGatewayProxyHandler = middy(async (event: APIGatewayPro
     }
   }
 
-  const params = {
-    TableName: config.dynamoDb.SCHEDULE_TABLE,
-    KeyConditionExpression: '#y = :year AND #m = :month',
-    ExpressionAttributeNames: {
-      "#y": "year",
-      "#m": "month"
-    },
-    ExpressionAttributeValues: {
-      ':year': year,
-      ':month': month
-    }
-  }
-
-  logger.info('Query DynamoDB:', { 'params': params });
   try {
-    const result = await dbClient.query(params).promise();
-    if(result.Items.length > 0) {
-      return {
-        statusCode: 200,
-        body: JSON.stringify(result.Items[0])
-      }
+    const result = await readWorkSchedule(year, month);
+    return {
+      statusCode: 200,
+      body: JSON.stringify(result)
     }
   } catch (err) {
     logger.error('Failed query DynamodDB for Schedule:', err);

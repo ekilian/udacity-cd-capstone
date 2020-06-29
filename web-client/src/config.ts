@@ -1,18 +1,12 @@
 
 export default {
-  REGION: 'us-east-2',
-  API_VERSION: 'v1',
-  STAGE: 'dev',
-  apiGateway: {
-    ENDPOINT_URL: 'https://hkmzazj0s2.execute-api.us-east-2.amazonaws.com'
-  },
+  REGION: process.env.REACT_APP_AWS_REGION,
+  API_VERSION: process.env.REACT_APP_API_VERSION,
+  STAGE: process.env.REACT_APP_API_STAGE,
+  ENDPOINT_URL: process.env.REACT_APP_API_ENDPOINT,
   cognito: {
-    USER_POOL_ID: 'us-east-2_sJRdbCIjo',
-    APP_CLIENT_ID: '2tb4b1m5233phn9meghhsikepr',
-    APP_SECRET: '5a8siqltfmpd3aj0rdm33kll0gqe2j4r56ddrm50a3l9vhraan5',
-    AUTH_ENDPOINT: 'https://hkmzazj0s2.auth.us-east-2.amazoncognito.com',
-    CALLBACK_URL: 'https://ek-capstone-app.s3.us-east-2.amazonaws.com/callback',
-    TOKEN_ENDPOINT: 'https://hkmzazj0s2.auth.us-east-2.amazoncognito.com/oauth2/token',
+    USER_POOL_ID: process.env.REACT_APP_USER_POOL_ID,
+    APP_CLIENT_ID: process.env.REACT_APP_APP_CLIENT_ID
   }
 };
 

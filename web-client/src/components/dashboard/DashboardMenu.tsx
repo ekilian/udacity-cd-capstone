@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom'
-import { List, ListItem, ListItemIcon, ListItemText, Divider } from '@material-ui/core';
+import { List, ListItem, ListItemIcon, ListItemText } from '@material-ui/core';
 
 import DashboardIcon from '@material-ui/icons/Dashboard';
 import DateRangeIcon from '@material-ui/icons/DateRange';
@@ -29,12 +29,12 @@ export const DashboardMenu: React.FC<{}> = () => {
   }
 
   const usersLink = () => {
-    if(!authContext.isAuthenticated) {
+    if(!authContext.isAuthenticated || !authContext.isOffice) {
       return null;
     }
 
     return (
-      <ListItem button component={Link} to="/employees">
+      <ListItem button component={Link} to="/users">
         <ListItemIcon>
           <PeopleIcon />
         </ListItemIcon>
@@ -44,7 +44,7 @@ export const DashboardMenu: React.FC<{}> = () => {
   }
 
   const reportLink = () => {
-    if(!authContext.isAuthenticated) {
+    if(!authContext.isAuthenticated || !authContext.isOffice) {
       return null;
     }
 

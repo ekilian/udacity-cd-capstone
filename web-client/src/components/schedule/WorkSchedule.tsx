@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef} from 'react';
 import update from 'immutability-helper'
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
@@ -6,20 +6,18 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
 import Grid, { GridSpacing } from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
-import FormControl from '@material-ui/core/FormControl';
-import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
-import InputLabel from '@material-ui/core/InputLabel';
 import { Card, Backdrop, CircularProgress } from '@material-ui/core';
 
 import ScheduleActionButtons from './ScheduleActionButtons';
 import { saveWorkSchedule, deleteWorkSchedule, getWorkSchedule } from '../../api/ScheduleApi';
-import { createWorkingPlan } from '../../utils/WorkScheduleUtils';
+import { createWorkingPlan, DAYS_OF_WEEK } from '../../utils/WorkScheduleUtils';
 import { WorkingDay } from './WorkScheduleDay';
-import { DAYS_OF_WEEK } from '../../utils/constants';
 import { PlaningDay, PlaningCalendar } from '../../model/Calendar';
 import WorkerChips from './WorkerChips';
 import ConfirmDialog from '../common/ConfirmDialog';
+import SelectYearMonth from '../common/SelectYearMonth';
+import { getUsers } from '../../api/UsersApi';
+import { User } from '../../model/User';
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -72,20 +70,53 @@ const useStyles = makeStyles((theme: Theme) =>
 const WorkSchedule: React.FC<{}> = () => {
   const [spacing] = React.useState<GridSpacing>(2);
   const classes = useStyles();
+  const firstUpdate = useRef(true);
 
   const [month, setMonth] = useState((new Date().getMonth() + 1).toString());
   const [year, setYear] = useState(new Date().getFullYear().toString());
   const [workPlan, setWorkPlan] = useState<PlaningCalendar>({
     days: [] as PlaningDay[]
   } as PlaningCalendar);
-
+  const [workers, setWorkers] = useState({list: [] as User[]});
   const [scheduleChanged, setScheduleChanged] = useState(false);
   const [loadedSchedule, setLoadedSchedule] = useState(false);
   const [isEditable, setEditable] = useState(true);
   const [backdropOpen, setBackdropOpen] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
 
-  const handleChange = (event: React.ChangeEvent<{ value: unknown }>) => {
+  useEffect(() => {
+    const callApi = async () => {
+      setBackdropOpen(backdropOpen => !backdropOpen);
+      if (firstUpdate.current) {
+        firstUpdate.current = false;
+        const userArray = await getUsers(true);
+        let workerArray: User[] = [];
+        userArray.forEach((element) => {
+          if (element.customrole === 'Worker') {
+            workerArray.push(element);
+          }
+        });
+        setWorkers({ list: workerArray });
+      }
+
+      const loadedSchedule = await getWorkSchedule(parseInt(year), parseInt(month));
+      if(!loadedSchedule) {
+        setWorkPlan({ days: [] as PlaningDay[] } as PlaningCalendar);
+        const newSchedule = createWorkingPlan(parseInt(year), parseInt(month));
+        setWorkPlan(newSchedule);
+        setLoadedSchedule(false);
+      } else {
+        setWorkPlan({ days: [] as PlaningDay[] } as PlaningCalendar);
+        setWorkPlan(loadedSchedule);
+        setLoadedSchedule(true);
+      }
+      setScheduleChanged(false);
+      setBackdropOpen(backdropOpen => !backdropOpen);
+    }
+    callApi();
+  }, [month, year]);
+
+  const handleMonthChange = (event: React.ChangeEvent<{ value: unknown }>) => {
     const newMonth = event.target.value as string
     setMonth(newMonth);
     defineEditability(newMonth, year);
@@ -137,67 +168,12 @@ const WorkSchedule: React.FC<{}> = () => {
     setBackdropOpen(backdropOpen => !backdropOpen);
   }
 
-  useEffect(() => {
-    const callApi = async () => {
-      setBackdropOpen(backdropOpen => !backdropOpen);
-      const loadedSchedule = await getWorkSchedule(parseInt(year), parseInt(month));
-      if(!loadedSchedule) {
-        setWorkPlan({ days: [] as PlaningDay[] } as PlaningCalendar);
-        const newSchedule = createWorkingPlan(parseInt(year), parseInt(month));
-        setWorkPlan(newSchedule);
-        setLoadedSchedule(false);
-      } else {
-        setWorkPlan({ days: [] as PlaningDay[] } as PlaningCalendar);
-        setWorkPlan(loadedSchedule);
-        setLoadedSchedule(true);
-      }
-      setScheduleChanged(false);
-      setBackdropOpen(backdropOpen => !backdropOpen);
-    }
-    callApi();
-  }, [month, year]);
-
   return (
     <DndProvider backend={HTML5Backend}>
       <Grid container className={classes.root} spacing={3}>
-        <Grid item sm={2}>
-          <FormControl className={classes.formControl}>
-            <InputLabel id="month-label">Month</InputLabel>
-            <Select
-              labelId="month-select-label"
-              id="month-select"
-              value={month}
-              onChange={handleChange}
-            >
-              <MenuItem key={1} value={1}>January</MenuItem>
-              <MenuItem key={2} value={2}>February</MenuItem>
-              <MenuItem key={3} value={3}>March</MenuItem>
-              <MenuItem key={4} value={4}>April</MenuItem>
-              <MenuItem key={5} value={5}>May</MenuItem>
-              <MenuItem key={6} value={6}>June</MenuItem>
-              <MenuItem key={7} value={7}>July</MenuItem>
-              <MenuItem key={8} value={8}>August</MenuItem>
-              <MenuItem key={9} value={9}>September</MenuItem>
-              <MenuItem key={10} value={10}>October</MenuItem>
-              <MenuItem key={11} value={11}>November</MenuItem>
-              <MenuItem key={12} value={12}>December</MenuItem>
-            </Select>
-          </FormControl>
-        </Grid>
-        <Grid item sm={2}>
-          <FormControl className={classes.formControl}>
-            <InputLabel id="year-label">Year</InputLabel>
-            <Select
-              labelId="year-select-label"
-              id="year-select"
-              value={year}
-              onChange={handleYearChange}
-            >
-              <MenuItem key={1} value={2020}>2020</MenuItem>
-              <MenuItem key={2} value={2021}>2021</MenuItem>
-            </Select>
-          </FormControl>
-        </Grid>
+        <SelectYearMonth year={year} month={month}
+              handleYearChange={handleYearChange}
+              handleMonthChange={handleMonthChange}/>
         {/* Headline */}
         <Grid container spacing={spacing}>
           {DAYS_OF_WEEK.map((value) => (
@@ -213,7 +189,7 @@ const WorkSchedule: React.FC<{}> = () => {
           {workPlan.days.map((value, index) => (
             <Grid key={index} item className={classes.item}>
               {value.active
-                ? <WorkingDay index={index} day={value}
+                ? <WorkingDay index={index} day={value} workers={workers.list}
                     isEditable={isEditable}
                     updateParent={(value, index) => updateParent(value, index)} />
                 : <Card className={classes.paperGray} />
@@ -226,7 +202,7 @@ const WorkSchedule: React.FC<{}> = () => {
       <Backdrop className={classes.backdrop} open={backdropOpen}>
         <CircularProgress color="inherit" />
       </Backdrop>
-      <WorkerChips isEditable={isEditable} />
+      <WorkerChips isEditable={isEditable} workers={workers.list} />
       <ScheduleActionButtons key="fab"
               isEditable={isEditable}
               isSaveActive={scheduleChanged}

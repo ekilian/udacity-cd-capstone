@@ -5,7 +5,7 @@ import './index.css';
 import App from './App';
 import { createBrowserHistory } from 'history'
 
-import { Router, Route } from 'react-router-dom';
+import { Router } from 'react-router-dom';
 import { Context } from './auth/AuthContext';
 import Amplify from 'aws-amplify';
 import config from './config';
@@ -15,10 +15,11 @@ const history = createBrowserHistory()
 const Index = () => {
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isOffice, setIsOffice] = useState(false);
 
   return (
     <Router history={history}>
-      <Context.Provider value={{ isAuthenticated, setIsAuthenticated}}>
+      <Context.Provider value={{ isAuthenticated, isOffice, setIsAuthenticated, setIsOffice}}>
           <div>
             <App />
           </div>

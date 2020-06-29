@@ -11,14 +11,13 @@ import { Auth } from 'aws-amplify';
  */
 export const getWorkSchedule = async (year:number, month:number):Promise<PlaningCalendar> => {
   const idToken = (await Auth.currentSession()).getIdToken();
-  console.log(idToken.getJwtToken());
-  const result = await axios.get(`${config.apiGateway.ENDPOINT_URL}/${config.STAGE}/${config.API_VERSION}/schedule/${year}/${month}`, {
+  const result = await axios.get(`${config.ENDPOINT_URL}/${config.STAGE}/${config.API_VERSION}/schedule/${year}/${month}`, {
     headers: {
       Authorization: idToken.getJwtToken()
     }
   });
   let response;
-  if(result.data !== '') {
+  if(Object.keys(result.data).length > 0) {
     response = result.data;
     response.days = response.schedule;
     delete response.schedule;
@@ -32,7 +31,7 @@ export const getWorkSchedule = async (year:number, month:number):Promise<Planing
  */
 export const saveWorkSchedule = async (schedule:PlaningCalendar):Promise<PlaningCalendar> => {
   const idToken = (await Auth.currentSession()).getIdToken();
-  await axios.post(`${config.apiGateway.ENDPOINT_URL}/${config.STAGE}/${config.API_VERSION}/schedule`, schedule, {
+  await axios.post(`${config.ENDPOINT_URL}/${config.STAGE}/${config.API_VERSION}/schedule`, schedule, {
     headers: {
       Authorization: idToken.getJwtToken()
     }
@@ -47,7 +46,7 @@ export const saveWorkSchedule = async (schedule:PlaningCalendar):Promise<Planing
  */
 export const deleteWorkSchedule = async (year:number, month:number):Promise<PlaningCalendar> => {
   const idToken = (await Auth.currentSession()).getIdToken();
-  await axios.delete(`${config.apiGateway.ENDPOINT_URL}/${config.STAGE}/${config.API_VERSION}/schedule/${year}/${month}`, {
+  await axios.delete(`${config.ENDPOINT_URL}/${config.STAGE}/${config.API_VERSION}/schedule/${year}/${month}`, {
     headers: {
       Authorization: idToken.getJwtToken()
     }

@@ -28,10 +28,3 @@ To install and run the web-frontend locally, just follow these steps:
       npm install
       npm start
       ```
-
-
-## Use cases
-
-### Planing of work schedule
-
-![Work Schedule](../screenshots/schedule.gif?raw=true "Planing the work schedule")

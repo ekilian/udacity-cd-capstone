@@ -1,7 +1,7 @@
 import React from 'react';
 import { Switch, Route, useHistory } from 'react-router-dom'
 import clsx from 'clsx';
-import { makeStyles } from '@material-ui/core/styles';
+
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Drawer from '@material-ui/core/Drawer';
 import AppBar from '@material-ui/core/AppBar';
@@ -16,112 +16,35 @@ import { DashboardMenu } from './DashboardMenu';
 import {Lock, LockOpenRounded} from '@material-ui/icons'
 
 import WorkSchedule from '../schedule/WorkSchedule';
-import Employees from '../users/Users';
+import Users from '../users/Users';
 import { IAuthContext, useAuthContext } from '../../auth/AuthContext';
 import SimpleBarChart from '../reports/Reports';
-import config from '../../config';
 import Login from '../../auth/Login';
 
-const drawerWidth = 240;
+import { useDashboardStyles } from './DashboardStyles';
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    display: 'flex',
-  },
-  toolbar: {
-    paddingRight: 24, // keep right padding when drawer closed
-  },
-  toolbarIcon: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    padding: '0 8px',
-    ...theme.mixins.toolbar,
-  },
-  appBar: {
-    zIndex: theme.zIndex.drawer + 1,
-    transition: theme.transitions.create(['width', 'margin'], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-  },
-  appBarShift: {
-    marginLeft: drawerWidth,
-    width: `calc(100% - ${drawerWidth}px)`,
-    transition: theme.transitions.create(['width', 'margin'], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  },
-  menuButton: {
-    marginRight: 36,
-  },
-  menuButtonHidden: {
-    display: 'none',
-  },
-  title: {
-    flexGrow: 1,
-  },
-  drawerPaper: {
-    position: 'relative',
-    whiteSpace: 'nowrap',
-    width: drawerWidth,
-    transition: theme.transitions.create('width', {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  },
-  drawerPaperClose: {
-    overflowX: 'hidden',
-    transition: theme.transitions.create('width', {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-    width: theme.spacing(7),
-    [theme.breakpoints.up('sm')]: {
-      width: theme.spacing(9),
-    },
-  },
-  appBarSpacer: theme.mixins.toolbar,
-  content: {
-    flexGrow: 1,
-    height: '100vh',
-    overflow: 'auto',
-  },
-  container: {
-    paddingTop: theme.spacing(4),
-    paddingBottom: theme.spacing(4),
-  },
-  paper: {
-    padding: theme.spacing(2),
-    display: 'flex',
-    overflow: 'auto',
-    flexDirection: 'column',
-  },
-  fixedHeight: {
-    height: 240,
-  },
-}));
 
 export default function Dashboard() {
   const history = useHistory();
-  const classes = useStyles();
+  const classes = useDashboardStyles();
   const authContext:IAuthContext = useAuthContext();
   const [open, setOpen] = React.useState(true);
 
   const handleDrawerOpen = () => {
     setOpen(true);
   };
+
   const handleDrawerClose = () => {
     setOpen(false);
   };
+
   const handleLogin = () => {
     if(authContext.isAuthenticated) {
       return handleLogout();
     }
     history.push("/login")
-    //window.location.href = `${config.cognito.AUTH_ENDPOINT}/login?client_id=${config.cognito.APP_CLIENT_ID}&response_type=code&scope=profile+openid&redirect_uri=${config.cognito.CALLBACK_URL}`;
   }
+
   function handleLogout() {
     authContext.setIsAuthenticated(false);
     history.push("/");
@@ -173,7 +96,7 @@ export default function Dashboard() {
           <Container maxWidth="xl" className={classes.container}>
             <Switch>
               <Route exact path="/schedule" component={WorkSchedule} />
-              <Route exact path="/employees" component={Employees} />
+              <Route exact path="/users" component={Users} />
               <Route exact path="/reports" component={SimpleBarChart} />
               <Route exact path="/login" component={Login} />
             </Switch>

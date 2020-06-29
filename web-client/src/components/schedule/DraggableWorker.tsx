@@ -1,10 +1,10 @@
 import React from "react"
 import { Chip } from "@material-ui/core";
 import { useDrag } from "react-dnd";
+import { User } from "../../model/User";
 
 export interface DraggableWorkerProps {
-  name:string,
-  type:string,
+  user:User,
   isDropped:boolean,
   isEditable:boolean,
   onDelete?:(name:string) => void
@@ -18,10 +18,12 @@ const margin: React.CSSProperties = {
   marginBottom: '2px'
 }
 
-export const DraggableWorker: React.FC<DraggableWorkerProps> = ({name, type, isDropped, isEditable, onDelete}) => {
+const type = 'Worker'
+
+export const DraggableWorker: React.FC<DraggableWorkerProps> = ({user, isDropped, isEditable, onDelete}) => {
 
   const [{}, drag] = useDrag({
-    item: { name, type },
+    item: { user, type },
     collect: (monitor) => ({
       opacity: monitor.isDragging() ? 0.5 : 1,
     }),
@@ -34,7 +36,7 @@ export const DraggableWorker: React.FC<DraggableWorkerProps> = ({name, type, isD
             variant="outlined"
             color="primary"
             size="small"
-            label={name}
+            label={`${user.given_name} ${user.family_name?.charAt(0)}.`}
             onDelete={onDelete}
             style={dragStyle} />
       </div>
@@ -46,7 +48,7 @@ export const DraggableWorker: React.FC<DraggableWorkerProps> = ({name, type, isD
           variant="outlined"
           color="primary"
           size="small"
-          label={name}
+          label={`${user.given_name} ${user.family_name?.charAt(0)}.`}
         />
       </div>
     )
@@ -57,7 +59,7 @@ export const DraggableWorker: React.FC<DraggableWorkerProps> = ({name, type, isD
           variant="outlined"
           color="primary"
           size="small"
-          label={name}
+          label={`${user.given_name} ${user.family_name?.charAt(0)}.`}
           style={dragStyle} />
       </div>
     )
