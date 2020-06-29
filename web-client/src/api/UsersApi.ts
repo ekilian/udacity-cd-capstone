@@ -23,7 +23,6 @@ export const getUser = async (username:string): Promise<User> => {
     enabled: true
   }
   result.data.forEach((element: any) => {
-    console.log(element)
     user.enabled = element['Enabled'];
     element['Attributes'].forEach((attr: any) => {
       if (attr.Name === 'sub') {
@@ -240,6 +239,5 @@ const userToUserAttributes = (user:User):any[] => {
       }
     }
   }
-  console.log(userAttributes)
   return userAttributes;
 }

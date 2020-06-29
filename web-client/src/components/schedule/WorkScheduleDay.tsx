@@ -92,7 +92,6 @@ export const WorkingDay: FunctionComponent<PlaningDayProps> = (props) => {
   });
 
   const handleDrop = (item: any, target: string) => {
-    console.log(item)
     if (target === 'morning') {
       setPlaningDay(
         update(planingDay, {
