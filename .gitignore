@@ -12,5 +12,4 @@ jspm_packages
 TODO
 *.code-workspace
 /example-json/
-set_env.sh
 build

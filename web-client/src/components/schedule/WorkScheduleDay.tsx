@@ -8,8 +8,8 @@ import { Card } from '@material-ui/core';
 
 import { PlaningDay } from '../../model/Calendar';
 import { DraggableWorker, DraggableWorkerProps } from './DraggableWorker';
-import { ItemTypes } from '../../utils/ItemTypes';
 import { v4 as uuid } from 'uuid';
+import { User } from '../../model/User';
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -38,19 +38,29 @@ export interface PlaningDayProps {
   index:number
   day: PlaningDay,
   isEditable: boolean,
+  workers:User[],
   updateParent: (updatedDay:PlaningDay, index:number) => void,
 }
 
 export const WorkingDay: FunctionComponent<PlaningDayProps> = (props) => {
+  const classes = useStyles();
   const firstUpdate = useRef(true);
   const [planingDay, setPlaningDay] = useState(props.day);
+
+  useEffect(() => {
+    if (firstUpdate.current) {
+      firstUpdate.current = false;
+      return;
+    }
+    props.updateParent(planingDay, props.index);
+  }, [planingDay])
 
   const [{}, dropMorning] = useDrop({
     accept: 'Worker',
     drop: (item) => handleDrop(item, 'morning'),
     canDrop: function(props, monitor) {
-      const prop = props as DraggableWorkerProps;
-      if(planingDay.morning.indexOf(prop.name) > -1) {
+      const prop = props as unknown as DraggableWorkerProps;
+      if(planingDay.morning.indexOf(prop.user.id) > -1) {
         return false;
       }
       return true;
@@ -61,8 +71,8 @@ export const WorkingDay: FunctionComponent<PlaningDayProps> = (props) => {
     accept: 'Worker',
     drop: (item) => handleDrop(item, 'afternoon'),
     canDrop: function(props, monitor) {
-      const proper = props as DraggableWorkerProps;
-      if(planingDay.afternoon.indexOf(proper.name) > -1) {
+      const prop = props as unknown as DraggableWorkerProps;
+      if(planingDay.afternoon.indexOf(prop.user.id) > -1) {
         return false;
       }
       return true;
@@ -73,41 +83,34 @@ export const WorkingDay: FunctionComponent<PlaningDayProps> = (props) => {
     accept: 'Worker',
     drop: (item) => handleDrop(item, 'night'),
     canDrop: function(props, monitor) {
-      const proper = props as DraggableWorkerProps;
-      if(planingDay.night.indexOf(proper.name) > -1) {
+      const prop = props as unknown as DraggableWorkerProps;
+      if(planingDay.night.indexOf(prop.user.id) > -1) {
         return false;
       }
       return true;
     }
   });
 
-  useEffect(() => {
-    if (firstUpdate.current) {
-      firstUpdate.current = false;
-      return;
-    }
-    props.updateParent(planingDay, props.index);
-  }, [planingDay])
-
   const handleDrop = (item: any, target: string) => {
+    console.log(item)
     if (target === 'morning') {
       setPlaningDay(
         update(planingDay, {
-          morning: { $push: [item.name] }
+          morning: { $push: [item.user.id] }
         })
       );
     }
     if (target === 'afternoon') {
       setPlaningDay(
         update(planingDay, {
-          afternoon: { $push: [item.name] }
+          afternoon: { $push: [item.user.id] }
         })
       );
     }
     if (target === 'night') {
       setPlaningDay(
         update(planingDay, {
-          night: { $push: [item.name] }
+          night: { $push: [item.user.id] }
         })
       );
     }
@@ -137,7 +140,16 @@ export const WorkingDay: FunctionComponent<PlaningDayProps> = (props) => {
     }
   }
 
-  const classes = useStyles();
+  const findUserById = (id:String): User => {
+    const result = props.workers.find((element) => {
+      if(element.id === id) {
+        return element;
+      }
+      return undefined;
+    })
+    return result ? result : {} as User;
+  }
+
   return (
     <Card  className={classes.paper}>
       <span>{props.day.day}</span>
@@ -145,7 +157,7 @@ export const WorkingDay: FunctionComponent<PlaningDayProps> = (props) => {
       <div ref={dropMorning} className={classes.paper}>
         <div className={classes.subPaper}>
         {planingDay.morning.map((value) => (
-          <DraggableWorker key={uuid()} name={value} type={ItemTypes.WORKER} isDropped={true}
+          <DraggableWorker key={uuid()} user={findUserById(value)} isDropped={true}
                           isEditable={props.isEditable}
                           onDelete={(value) => handleDelete(value, 'morning')} />
         ))}
@@ -155,7 +167,7 @@ export const WorkingDay: FunctionComponent<PlaningDayProps> = (props) => {
       <div ref={dropAfternoon} className={classes.paper}>
        <div className={classes.subPaper}>
         {planingDay.afternoon.map((value) => (
-          <DraggableWorker key={uuid()} name={value} type={ItemTypes.WORKER} isDropped={true}
+          <DraggableWorker key={uuid()} user={findUserById(value)} isDropped={true}
                             isEditable={props.isEditable}
                             onDelete={(value) => handleDelete(value, 'afternoon')} />
         ))}
@@ -165,7 +177,7 @@ export const WorkingDay: FunctionComponent<PlaningDayProps> = (props) => {
       <div ref={dropNight} className={classes.paper}>
        <div className={classes.subPaper}>
         {planingDay.night.map((value) => (
-          <DraggableWorker key={uuid()} name={value} type={ItemTypes.WORKER} isDropped={true}
+          <DraggableWorker key={uuid()} user={findUserById(value)} isDropped={true}
                           isEditable={props.isEditable}
                           onDelete={(value) => handleDelete(value, 'night')} />
         ))}

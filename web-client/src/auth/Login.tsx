@@ -49,6 +49,9 @@ export default function Login() {
       const result = await Auth.signIn(username, password);
       if(result) {
         appContext.setIsAuthenticated(true);
+        if(result.attributes['custom:role'] === 'Office') {
+          appContext.setIsOffice(true);
+        }
         console.log(await (await Auth.currentSession()).getIdToken().getJwtToken());
         history.push("/");
       }

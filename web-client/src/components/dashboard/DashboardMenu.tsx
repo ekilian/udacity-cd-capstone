@@ -29,7 +29,7 @@ export const DashboardMenu: React.FC<{}> = () => {
   }
 
   const usersLink = () => {
-    if(!authContext.isAuthenticated) {
+    if(!authContext.isAuthenticated || !authContext.isOffice) {
       return null;
     }
 
@@ -44,7 +44,7 @@ export const DashboardMenu: React.FC<{}> = () => {
   }
 
   const reportLink = () => {
-    if(!authContext.isAuthenticated) {
+    if(!authContext.isAuthenticated || !authContext.isOffice) {
       return null;
     }
 

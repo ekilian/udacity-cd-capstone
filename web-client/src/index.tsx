@@ -15,10 +15,11 @@ const history = createBrowserHistory()
 const Index = () => {
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isOffice, setIsOffice] = useState(false);
 
   return (
     <Router history={history}>
-      <Context.Provider value={{ isAuthenticated, setIsAuthenticated}}>
+      <Context.Provider value={{ isAuthenticated, isOffice, setIsAuthenticated, setIsOffice}}>
           <div>
             <App />
           </div>

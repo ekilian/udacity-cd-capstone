@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { Button, Grid, Slide, Backdrop, CircularProgress } from '@material-ui/core';
 import { TextField, RadioGroup, FormControlLabel, Radio } from '@material-ui/core';
-import { Save, Edit, Close} from '@material-ui/icons'
+import { Save, Close} from '@material-ui/icons'
 
 import { deleteUser, getUsers, editUser, createUser } from '../../api/UsersApi';
 import { User } from '../../model/User';
@@ -11,6 +11,7 @@ import UserActionButton from './UserActionButton';
 import { IAuthContext, useAuthContext } from '../../auth/AuthContext';
 import { useStyles } from './UsersStyles';
 import { validateUsername } from './UsersValidation';
+
 import UsersGrid from './UsersGrid';
 
 
@@ -19,16 +20,9 @@ const initUser = {
   password: '',
   given_name: '',
   family_name: '',
-  address: '',
-  phone_number: '+51',
   email: '',
-  customrole: 'Worker',
-  customimageUrl: ''
+  customrole: 'Worker'
 } as User;
-
-export interface UserFileProp {
-  selectedFile:any
-}
 
 export const Users: React.FC = () => {
   const history = useHistory();
@@ -38,7 +32,6 @@ export const Users: React.FC = () => {
   const [open, setOpen] = React.useState(false);
   const [backdropOpen, setBackdrop] = React.useState(false);
   const [user, setUser] = React.useState(initUser);
-  const [file, setFile] = React.useState({} as UserFileProp);
   const [editMode, setEditMode] = React.useState(false);
   const [worker, setWorker] = useState({list: [] as User[]});
   const [usernameValidation, setUsernameValidation] = React.useState('');
@@ -60,7 +53,7 @@ export const Users: React.FC = () => {
   const handleDeleteUser = async (user: User) => {
     const result = await deleteUser(user.username);
     if (result) {
-      history.push("/users")
+      setRefresh(refresh => refresh + 1);
     }
   }
 
@@ -71,7 +64,6 @@ export const Users: React.FC = () => {
   }
 
   const handleCreateUser = () => {
-    console.log(initUser)
     setUser(initUser);
     setEditMode(false);
     setOpen(true);
@@ -80,7 +72,7 @@ export const Users: React.FC = () => {
   const handleSave = async (user: User): Promise<void> => {
     setBackdrop(true);
     if (editMode) {
-      await editUser(user, file.selectedFile);
+      await editUser(user);
     } else {
       await createUser(user);
     }
@@ -104,22 +96,15 @@ export const Users: React.FC = () => {
     });
   }
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    let selectedFile;
-    if(event.target.files) {
-      selectedFile = event.target.files[0];
-    }
-    setFile({
-      ...file,
-      selectedFile
-    });
-  }
-
   const handleClose = () => {
     setUser(initUser);
     setOpen(false);
   }
 
+  const handleReload = () => {
+    setWorker({list: [] as User[]});
+    setRefresh(refresh => refresh + 1);
+  }
 
   return (
     <Grid container direction="row" justify="center">
@@ -176,20 +161,6 @@ export const Users: React.FC = () => {
                     required
                   />
                 </Grid>
-                <Grid item>
-                  <TextField id="phone" label="Phone number" variant="outlined" name="phone_number" fullWidth
-                    InputLabelProps={{ shrink: true }}
-                    value={user.phone_number}
-                    onChange={handleChange}
-                  />
-                </Grid>
-                <Grid item>
-                  <TextField id="image" label="Image" variant="outlined" fullWidth
-                    name="customimageUrl" InputLabelProps={{ shrink: true }}
-                    type="file"
-                    value={user.customimageUrl}
-                    onChange={handleFileChange} />
-                </Grid>
                 <Grid container direction="row" justify="center">
                   <Grid item>
                     <RadioGroup aria-label="role" name="customrole" value={user.customrole} onChange={handleChange} row>
@@ -228,7 +199,7 @@ export const Users: React.FC = () => {
           </div>
         </Slide>
       </Grid>
-      <UsersGrid workers={worker.list} handleDeleteUser={handleDeleteUser} handleEditUser={handleEditUser} />
+      <UsersGrid workers={worker.list} handleDeleteUser={handleDeleteUser} handleEditUser={handleEditUser} reload={handleReload} />
       <UserActionButton isActive={!open} handleCreate={() => handleCreateUser()} />
       <Backdrop className={classes.backdrop} open={backdropOpen} onClick={handleClose}>
         <CircularProgress color="inherit" />
