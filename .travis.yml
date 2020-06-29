@@ -11,6 +11,7 @@ install:
   - npm ci
   - npm install -g serverless
   - cd ../web-client
+  - npm install -g serverless
   - npm ci
 
 stages:
@@ -31,18 +32,21 @@ jobs:
         - sls package -v --stage dev
         - cd ../web-client
         - CI=false npm run build
-        # TODO Build web-client, run tests
     - stage: stage
       script:
         - echo 'Test, build and deploy to dev'
         - cd ../backend
         - npm test
         - sls deploy -v --stage dev
-        # TODO Build web-client, run tests, deploy to dev
+        - cd ../web-client
+        - CI=false npm run build
+        - sls client deploy --no-confirm --stage dev
     - stage: prod
       script:
         - echo 'Test, build and deploy to prod'
         - cd ../backend
         - npm test
         - sls deploy -v --stage prod
-        # TODO Build and deploy web-client
+        - cd ../web-client
+        - CI=false npm run build
+        - sls client deploy --no-confirm --stage prod

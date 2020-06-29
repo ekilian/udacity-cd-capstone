@@ -61,5 +61,4 @@ const getDaysArray = (year: number, month: number): number[] => {
     return result;
 };
 
-// TODO: L10N
-export const namesOfDays = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo'];
+export const DAYS_OF_WEEK = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];

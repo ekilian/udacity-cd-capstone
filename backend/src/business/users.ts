@@ -1,6 +1,7 @@
 import { config } from '../config';
 import { adminCreateUser, adminSetUserPassword, adminDeleteUser, adminUpdateUserAttributes, listUsers, adminGetUser } from '../cognito/accessCognito';
 import { createLogger } from '../utils/logger';
+import { getUploadUrl } from '../utils/images';
 
 const logger = createLogger('AccessCognito');
 
@@ -35,16 +36,17 @@ export const readAllUser = async () => {
     UserPoolId: config.cognito.USER_POOL_ID
   };
   try {
-    return await listUsers(params);
+    const result = await listUsers(params);
+    return result.Users;
   } catch(err) {
-    logger.error('Failed to call Users.adminDeleteUser()', err);
+    logger.error('Failed to call AccessCognito.listUsers()', err);
     throw err;
   }
 }
 
 
 /**
- *
+ * TODO
  * @param parsedBody
  */
 export const createNewUser = async (parsedBody:any) => {
@@ -52,7 +54,7 @@ export const createNewUser = async (parsedBody:any) => {
     UserPoolId: config.cognito.USER_POOL_ID,
     Username: parsedBody.Username,
     TemporaryPassword: parsedBody.Password,
-    //DesiredDeliveryMediums: [ "EMAIL" ],
+    DesiredDeliveryMediums: [ "EMAIL" ],
     UserAttributes: parsedBody.UserAttributes
   };
   addUpdatedAtParam(params);
@@ -60,19 +62,19 @@ export const createNewUser = async (parsedBody:any) => {
   try {
     await adminCreateUser(params);
   } catch(err) {
-    logger.error('Failed to call Users.adminCreateUser()', err);
+    logger.error('Failed to call AccessCognito.adminCreateUser()', err);
     throw err;
   }
   var confirmParams = {
     Password: parsedBody.Password,
-    UserPoolId: parsedBody.UserPoolId,
+    UserPoolId: config.cognito.USER_POOL_ID,
     Username: parsedBody.Username,
     Permanent: true
   };
   try {
     return await adminSetUserPassword(confirmParams);
   } catch(err) {
-    logger.error('Failed to call Users.adminSetUserPassword()', err);
+    logger.error('Failed to call AccessCognito.adminSetUserPassword()', err);
     throw err;
   }
 }
@@ -88,7 +90,7 @@ export const updateUser = async (parsedBody:any) => {
   try {
     return await adminUpdateUserAttributes(params);
   } catch(err) {
-    logger.error('Failed to call Users.adminCreateUser()', err);
+    logger.error('Failed to call AccessCognito.adminUpdateUserAttributes()', err);
     throw err;
   }
 }
@@ -105,7 +107,27 @@ export const deleteUser = async (username:string) => {
   try {
     return await adminDeleteUser(params);
   } catch(err) {
-    logger.error('Failed to call Users.adminDeleteUser()', err);
+    logger.error('Failed to call AccessCognito.adminDeleteUser()', err);
+    throw err;
+  }
+}
+
+/**
+ * Generates a presigned Url for the S3 Bucket.
+ * @param userId - The Id of the User.
+ * @returns Object containing the signed URL from S3 and the URL to access the image.
+ */
+export const generateSignedUrl = async (username: string): Promise<object> => {
+  try {
+    const signedUrl = await getUploadUrl(username);
+    const attachmentUrl = `https://${config.BUCKET_NAME}.s3.amazonaws.com/${username}`;
+    logger.info('Generated presigned URL', { 'url': signedUrl, 'attachmentUrl': attachmentUrl });
+    return {
+      signedUrl: signedUrl,
+      attachmentUrl: attachmentUrl
+    };
+  } catch (err) {
+    logger.error('Failed to generate signed URL', err);
     throw err;
   }
 }

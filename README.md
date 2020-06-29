@@ -1,7 +1,3 @@
-- Master: [![Build Status](https://travis-ci.org/ekilian/udacity-cd-capstone.svg?branch=master)](https://travis-ci.org/ekilian/udacity-cd-capstone) 
-- Stage: [![Build Status](https://travis-ci.org/ekilian/udacity-cd-capstone.svg?branch=stage)](https://travis-ci.org/ekilian/udacity-cd-capstone)
-
-
 # udacity-cd-capstone
 
 Capstone project for my Udacity Cloud Developer nanodegree.
@@ -19,28 +15,15 @@ Rubic requirements that I wanted to fulfil with this project:
      - [x] Travis-CI is setup to deploy a PROD-Version of the project everytime a pull request is merged into master branch.
         (see: https://github.com/ekilian/udacity-cd-capstone/blob/dev/README.md#cicd-pipeline)
 
-2. Container:
-   - Does not apply to this project because it's implemented as a serverless application.
-
-3. Deployment:
-   - The application runs on a cluster in the cloud
-     - [ ] Does not apply to this project because it's implemented as a serverless application.
-   - The app can be upgraded via rolling-update:
-     - [x] The students can deploy a new version of the application without downtime
-   - A/B deployment of the application
-     - [ ] Two versions of the same app can run at the same and service traffic
-   - Monitoring:
-     - [x] The application is monitored by Amazon CloudWatch (TODO: Screenshot of Cloudwatch linked here)
-
 4. Functionality:
    - The application allows users to create, update, delete items:
-     - [ ] A user of the web application with the required role can use the interface to create, edit and delete users.
+     - [x] A user of the web application with the required role can use the interface to create, edit and delete users.
    - The application allows users to upload a file.
      - [ ] This application does not have a use-case with file upload
    - The application only displays items for a logged in user.
      - [ ]
    - Authentication is implemented and does not allow unauthenticated access.
-     - [ ] A user needs to authenticate in order to use an application. Authentication is based on AWS Cognito.
+     - [x] A user needs to authenticate in order to use an application. Authentication is based on AWS Cognito.
 
 5. Codebase:
    - The code is split into multiple layers separating business logic from I/O related code:
@@ -56,11 +39,11 @@ Rubic requirements that I wanted to fulfil with this project:
    - Application has sufficient monitoring.
      - [ ] Distributed tracing is enabled/ Sufficient amount of logging / Application level metrics
    - HTTP requests are validated:
-     - [ ] Incoming HTTP requests are validated using request validation in API Gateway.
+     - [x] Incoming HTTP requests are validated using request validation in API Gateway.
 
 7. Architecture:
    - Data is stored in a table with a composite key.
-     - [ ] 1:M relationship is modeled using a DynamoDB table that has a composite key with both partition and sort keys
+     - [x] 1:M relationship is modeled using a DynamoDB table that has a composite key with both partition and sort keys
    - Scan operation is not used to read data from a database.
      - [x] Work schedule is fetched by using the "query()" method.
 

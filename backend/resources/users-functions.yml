@@ -1,5 +1,5 @@
 GetUsers:
-  handler: src/http/lambda/v1/users/getUsers.handler
+  handler: src/lambda/http/v1/users/getUsers.handler
   events:
     - http:
         method: get
@@ -12,10 +12,11 @@ GetUsers:
     - Effect: Allow
       Action:
         - cognito-idp:ListUsers
-      Resource: arn:aws:cognito-idp:${self:provider.region}:*:userpool/${self:provider.environment.USER_POOL_ID}
+      Resource:
+        - {"Fn::Join": ["", ["arn:aws:cognito-idp:", {Ref: "AWS::Region"}, ":*:userpool/", Ref: CognitoUserPool]]}
 
 GetUser:
-  handler: src/http/lambda/v1/users/getUser.handler
+  handler: src/lambda/http/v1/users/getUser.handler
   events:
     - http:
         method: get
@@ -28,10 +29,11 @@ GetUser:
     - Effect: Allow
       Action:
         - cognito-idp:AdminGetUser
-      Resource: arn:aws:cognito-idp:${self:provider.region}:*:userpool/${self:provider.environment.USER_POOL_ID}
+      Resource:
+        - {"Fn::Join": ["", ["arn:aws:cognito-idp:", {Ref: "AWS::Region"}, ":*:userpool/", Ref: CognitoUserPool]]}
 
 CreateUser:
-  handler: src/http/lambda/v1/users/createUser.handler
+  handler: src/lambda/http/v1/users/createUser.handler
   events:
     - http:
         method: post
@@ -42,16 +44,17 @@ CreateUser:
           authorizerId: { Ref: MyApiGatewayAuthorizer }
         request:
           schema:
-            application/json: ${file(src/http/lambda/v1/validation/create-user-schema.json)}
+            application/json: ${file(src/lambda/http/v1/validation/create-user-schema.json)}
   iamRoleStatements:
     - Effect: Allow
       Action:
         - cognito-idp:AdminCreateUser
         - cognito-idp:AdminSetUserPassword
-      Resource: arn:aws:cognito-idp:${self:provider.region}:*:userpool/${self:provider.environment.USER_POOL_ID}
+      Resource:
+        - {"Fn::Join": ["", ["arn:aws:cognito-idp:", {Ref: "AWS::Region"}, ":*:userpool/", Ref: CognitoUserPool]]}
 
 EditUser:
-  handler: src/http/lambda/v1/users/editUser.handler
+  handler: src/lambda/http/v1/users/editUser.handler
   events:
     - http:
         method: patch
@@ -62,15 +65,16 @@ EditUser:
           authorizerId: { Ref: MyApiGatewayAuthorizer }
         request:
           schema:
-            application/json: ${file(src/http/lambda/v1/validation/edit-user-schema.json)}
+            application/json: ${file(src/lambda/http/v1/validation/edit-user-schema.json)}
   iamRoleStatements:
     - Effect: Allow
       Action:
         - cognito-idp:AdminUpdateUserAttributes
-      Resource: arn:aws:cognito-idp:${self:provider.region}:*:userpool/${self:provider.environment.USER_POOL_ID}
+      Resource:
+        - {"Fn::Join": ["", ["arn:aws:cognito-idp:", {Ref: "AWS::Region"}, ":*:userpool/", Ref: CognitoUserPool]]}
 
 DeleteUser:
-  handler: src/http/lambda/v1/users/deleteUser.handler
+  handler: src/lambda/http/v1/users/deleteUser.handler
   events:
     - http:
         method: delete
@@ -83,4 +87,22 @@ DeleteUser:
     - Effect: Allow
       Action:
         - cognito-idp:AdminDisableUser
-      Resource: arn:aws:cognito-idp:${self:provider.region}:*:userpool/${self:provider.environment.USER_POOL_ID}
+      Resource:
+        - {"Fn::Join": ["", ["arn:aws:cognito-idp:", {Ref: "AWS::Region"}, ":*:userpool/", Ref: CognitoUserPool]]}
+
+GenerateUploadUrl:
+  handler: src/lambda/http/v1/users/generateUploadUrl.handler
+  events:
+    - http:
+        method: post
+        path: /v1/users/attachment/{userId}
+        cors: true
+        authorizer:
+          type: COGNITO_USER_POOLS
+          authorizerId: { Ref: MyApiGatewayAuthorizer }
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - s3:PutObject
+        - s3:GetObject
+      Resource: arn:aws:s3:::${self:provider.environment.IMAGES_S3_BUCKET}/*

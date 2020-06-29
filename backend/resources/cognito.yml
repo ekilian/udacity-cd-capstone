@@ -31,6 +31,9 @@ Resources:
         - Name: role
           AttributeDataType: String
           Mutable: true
+        - Name: imageUrl
+          AttributeDataType: String
+          Mutable: true
 
   CognitoUserPoolClient:
     Type: AWS::Cognito::UserPoolClient
@@ -40,20 +43,12 @@ Resources:
       AllowedOAuthFlows: ["code"]
       AllowedOAuthFlowsUserPoolClient: true
       AllowedOAuthScopes: ["openid", "profile", "aws.cognito.signin.user.admin"]
+      GenerateSecret: false
       CallbackURLs: ["http://localhost:3000/callback"]
-      DefaultRedirectURI: "http://localhost:3000/callback"
       ExplicitAuthFlows:
         - ADMIN_NO_SRP_AUTH
-      GenerateSecret: true
       UserPoolId:
         Ref: CognitoUserPool
-
-  # CognitoUserPoolDomain:
-  #   Type: AWS::Cognito::UserPoolDomain
-  #   Properties:
-  #     Domain: MYDOMAIN # what is before .auth.REGION.amazoncognito.com
-  #     UserPoolId:
-  #       Ref: CognitoUserPool # given the name of your resource
 
   MyApiGatewayAuthorizer:
     Type: AWS::ApiGateway::Authorizer
@@ -76,17 +71,3 @@ Outputs:
   UserPoolClientId:
     Value:
       Ref: CognitoUserPoolClient
-
-# CognitoUserPoolClient:
-#      Type: AWS::Cognito::UserPoolClient
-#      Properties:
-#        ClientName: ${self:custom.name}-client
-#        SupportedIdentityProviders: ["COGNITO"]
-#        AllowedOAuthFlowsUserPoolClient: true
-#        AllowedOAuthFlows: ["code"]
-#        CallbackURLs: ["http://localhost:3000/callback"]
-#        DefaultRedirectURI: "http://localhost:3000/callback"
-#        AllowedOAuthScopes: ["email", "openid", "profile", "aws.cognito.signin.user.admin"]
-#        GenerateSecret: false
-#        UserPoolId:
-#          Ref: CognitoUserPool
