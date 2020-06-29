@@ -40,7 +40,7 @@ jobs:
         - sls deploy -v --stage dev
         - cd ../web-client
         - CI=false npm run build
-        - sls client deploy --no-confirm --stage dev
+        - serverless client deploy --no-confirm
     - stage: prod
       script:
         - echo 'Test, build and deploy to prod'
