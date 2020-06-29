@@ -7,7 +7,6 @@ import config from './config';
 
 
 function App() {
-  console.log(config)
   return (
     <BrowserRouter>
       <div className="App">

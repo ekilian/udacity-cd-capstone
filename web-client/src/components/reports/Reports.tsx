@@ -58,7 +58,6 @@ const SimpleBarChart: React.FC = () => {
         });
       }
     });
-    console.log(result);
     return result;
   }
 
