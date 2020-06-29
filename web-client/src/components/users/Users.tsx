@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useHistory } from 'react-router-dom';
 import { Button, Grid, Slide, Backdrop, CircularProgress } from '@material-ui/core';
 import { TextField, RadioGroup, FormControlLabel, Radio } from '@material-ui/core';
@@ -10,7 +10,9 @@ import UserActionButton from './UserActionButton';
 
 import { IAuthContext, useAuthContext } from '../../auth/AuthContext';
 import { useStyles } from './UsersStyles';
-import { validateUsername } from './UsersValidation';
+import { validateUsername, validatePassword } from './UsersValidation';
+
+import { ValidatorForm, TextValidator} from 'react-material-ui-form-validator';
 
 import UsersGrid from './UsersGrid';
 
@@ -41,6 +43,7 @@ export const Users: React.FC = () => {
       history.push("/login");
       return
     }
+    addCustomValidator();
     const callApi = async () => {
       setBackdrop(true);
       const workerArray = await getUsers(true);
@@ -49,6 +52,16 @@ export const Users: React.FC = () => {
     }
     callApi();
   }, [refresh]);
+
+  const addCustomValidator = () => {
+    ValidatorForm.addValidationRule('isPasswordValid', (value) => {
+        if (validatePassword(value)) {
+            return true;
+        }
+        return false;
+    });
+  }
+
 
   const handleDeleteUser = async (user: User) => {
     const result = await deleteUser(user.username);
@@ -70,6 +83,10 @@ export const Users: React.FC = () => {
   }
 
   const handleSave = async (user: User): Promise<void> => {
+    if(user.username.length === 0) {
+      setUsernameValidation('this field is required');
+      return
+    }
     setBackdrop(true);
     if (editMode) {
       await editUser(user);
@@ -84,7 +101,7 @@ export const Users: React.FC = () => {
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
     if(event.target.name === 'username') {
-      if(validateUsername(worker.list, event.target.value)) {
+      if(!validateUsername(worker.list, event.target.value)) {
         setUsernameValidation("Username already exists")
       } else {
         setUsernameValidation("")
@@ -106,59 +123,80 @@ export const Users: React.FC = () => {
     setRefresh(refresh => refresh + 1);
   }
 
+  const formRef = useRef(null);
+
   return (
     <Grid container direction="row" justify="center">
       <Grid container direction="column" className={open ? classes.drawerFormOpen : classes.drawerFormClose} alignItems="stretch">
         <Slide direction="right" in={open} mountOnEnter unmountOnExit>
           <div>
-            <form noValidate autoComplete="off">
+            <ValidatorForm ref={formRef} noValidate autoComplete="off" onSubmit={() => handleSave(user)} >
               <Grid container xl spacing={2} direction="column">
                 <Grid item>
                   <TextField id="username" label="Username" variant="outlined" name="username" autoComplete="new-username" fullWidth
-                    InputLabelProps={{ shrink: true }}
-                    value={user.username}
-                    onChange={handleChange}
-                    disabled={editMode}
-                    required
-                    helperText={usernameValidation}
-                    error={usernameValidation !== ''}
-                  />
+                      InputLabelProps={{ shrink: true }}
+                      value={user.username}
+                      onChange={handleChange}
+                      disabled={editMode}
+                      required
+                      helperText={usernameValidation}
+                      error={usernameValidation !== ''}
+                    />
                 </Grid>
                 <Grid item>
-                  <TextField id="password" label="Password" variant="outlined" name="password" autoComplete="new-password" fullWidth
-                    type="password"
-                    InputLabelProps={{ shrink: true }}
-                    value={user.password}
-                    onChange={handleChange}
-                    disabled={editMode}
-                    required
-                  />
+                    {editMode
+                      ? (<TextValidator id="password" label="Password" variant="outlined" name="password" autoComplete="new-password" fullWidth
+                            type="password"
+                            InputLabelProps={{ shrink: true }}
+                            value="xxxxxxxxx"
+                            disabled={editMode}
+                            required
+                          />)
+                      : (<TextValidator id="password" label="Password" variant="outlined" name="password" autoComplete="new-password" fullWidth
+                            type="password"
+                            InputLabelProps={{ shrink: true }}
+                            value={user.password}
+                            onChange={handleChange}
+                            disabled={editMode}
+                            required
+                            validators={['required', 'isPasswordValid']}
+                            errorMessages={[ 'this field is required', 'Password requirements: Minimum length of 8 and at least 1 Uppercase, 1 digit, 1 special character',]}
+                          />
+                      )
+                    }
+
                 </Grid>
                 <Grid item>
-                  <TextField id="surname" label="Surname" variant="outlined" name="given_name" fullWidth
-                    InputLabelProps={{ shrink: true }}
-                    inputProps={{ maxLength: 25 }}
-                    value={user.given_name}
-                    onChange={handleChange}
-                    required
-                  />
+                  <TextValidator id="surname" label="Surname" variant="outlined" name="given_name" fullWidth
+                        InputLabelProps={{ shrink: true }}
+                        inputProps={{ maxLength: 25 }}
+                        value={user.given_name}
+                        onChange={handleChange}
+                        required
+                        validators={['required']}
+                        errorMessages={['this field is required']}
+                    />
                 </Grid>
                 <Grid item>
-                  <TextField id="name" label="Name" variant="outlined" name="family_name" fullWidth
-                    InputLabelProps={{ shrink: true }}
-                    inputProps={{ maxLength: 25 }}
-                    value={user.family_name}
-                    onChange={handleChange}
-                    required
-                  />
+                  <TextValidator id="name" label="Name" variant="outlined" name="family_name" fullWidth
+                        InputLabelProps={{ shrink: true }}
+                        inputProps={{ maxLength: 25 }}
+                        value={user.family_name}
+                        onChange={handleChange}
+                        required
+                        validators={['required']}
+                        errorMessages={['this field is required']}
+                    />
                 </Grid>
                 <Grid item>
-                  <TextField id="email" label="E-Mail" variant="outlined" name="email" fullWidth
-                    InputLabelProps={{ shrink: true }}
-                    value={user.email}
-                    disabled={editMode}
-                    onChange={handleChange}
-                    required
+                  <TextValidator id="email" label="E-Mail" variant="outlined" name="email" fullWidth
+                      InputLabelProps={{ shrink: true }}
+                      value={user.email}
+                      disabled={editMode}
+                      onChange={handleChange}
+                      required
+                      validators={['required', 'isEmail']}
+                      errorMessages={['this field is required', 'email is not valid']}
                   />
                 </Grid>
                 <Grid container direction="row" justify="center">
@@ -172,13 +210,12 @@ export const Users: React.FC = () => {
               </Grid>
               <Grid container direction="row" spacing={3} justify="center">
                 <Grid item>
-                    <Button
-                      id="create"
+                    <Button id="create"
                       variant="contained"
                       color="primary"
                       size="small"
                       startIcon={<Save />}
-                      onClick={() => handleSave(user)}
+                      type="submit"
                     >
                       Save
                 </Button>
@@ -195,7 +232,7 @@ export const Users: React.FC = () => {
                   </Button>
                 </Grid>
               </Grid>
-            </form>
+            </ValidatorForm>
           </div>
         </Slide>
       </Grid>
