@@ -7,6 +7,8 @@ import { useStyles } from "./UsersStyles";
 import { User } from "../../model/User";
 import { addFotoForUser } from "../../api/UsersApi";
 import { Auth } from "aws-amplify";
+import { IAuthContext, useAuthContext } from '../../auth/AuthContext';
+import { validateUsername } from "./UsersValidation";
 
 
 
@@ -20,8 +22,10 @@ export interface UsersGridProps {
 
 const UsersGrid: React.FC<UsersGridProps> = (props) => {
   const classes = useStyles();
+  const authContext:IAuthContext = useAuthContext();
   const [user, setUser] = React.useState({} as unknown as User);
   const [currentUser, setCurrentUser] = React.useState('');
+  const [showWorkers, setShowWorkers] = React.useState([] as User[]);
 
   useEffect(() => {
     const callAsync = async () => {
@@ -43,7 +47,9 @@ const UsersGrid: React.FC<UsersGridProps> = (props) => {
 
   return (
     <Grid container direction="row" style={{ flex: 75 }}>
-      {props.workers.map((value, index) => (
+      {props.workers.map((value) => (
+        <React.Fragment>
+        {(authContext.isOffice || (!authContext.isOffice && value.username === currentUser)) && (
         <Card key={value.username} className={value.customrole === 'Office' ? classes.paperOffice : classes.paperWorker}>
           <Grid container direction="column" style={{height: '100%'}}>
             <Grid container direction="row" style={{ flex: 80 }}>
@@ -100,6 +106,7 @@ const UsersGrid: React.FC<UsersGridProps> = (props) => {
                   color="primary"
                   size="small"
                   startIcon={<Edit />}
+                  disabled={!authContext.isOffice}
                   onClick={() => props.handleEditUser(value)}>
                   Edit
                     </Button>
@@ -107,6 +114,8 @@ const UsersGrid: React.FC<UsersGridProps> = (props) => {
             </Grid>
           </Grid>
         </Card>
+         )}
+         </React.Fragment>
       ))}
     </Grid>
   )
