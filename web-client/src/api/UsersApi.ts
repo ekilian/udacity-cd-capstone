@@ -231,7 +231,7 @@ const userToUserAttributes = (user:User):any[] => {
         "Value": value
       });
     } else {
-      if(key !== 'username' && key !== 'customimageUrl') {
+      if(key !== 'username' && key !== 'customimageUrl' && key !== 'enabled' && key !== 'id') {
         userAttributes.push({
           'Name': key,
           "Value": value
