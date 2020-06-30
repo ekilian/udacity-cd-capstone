@@ -237,7 +237,9 @@ export const Users: React.FC = () => {
         </Slide>
       </Grid>
       <UsersGrid workers={worker.list} handleDeleteUser={handleDeleteUser} handleEditUser={handleEditUser} reload={handleReload} />
-      <UserActionButton isActive={!open} handleCreate={() => handleCreateUser()} />
+      {authContext.isOffice && (
+        <UserActionButton isActive={!open} handleCreate={() => handleCreateUser()} />
+      )}
       <Backdrop className={classes.backdrop} open={backdropOpen} onClick={handleClose}>
         <CircularProgress color="inherit" />
       </Backdrop>
