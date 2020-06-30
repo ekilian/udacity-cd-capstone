@@ -160,7 +160,7 @@ export const Users: React.FC = () => {
                             disabled={editMode}
                             required
                             validators={['required', 'isPasswordValid']}
-                            errorMessages={[ 'this field is required', 'Password requirements: Minimum length of 8 and at least 1 Uppercase, 1 digit, 1 special character',]}
+                            errorMessages={[ 'this field is required', 'Password requirements: Minimum length of 8 and at least 1 Uppercase, 1 digit, 1 special character (!+=.@[]$%&#*)',]}
                           />
                       )
                     }
