@@ -1,10 +1,10 @@
 import { config } from '../config';
-import { adminCreateUser, adminSetUserPassword, adminDeleteUser, adminUpdateUserAttributes, listUsers, adminGetUser } from '../cognito/accessCognito';
+import { adminCreateUser, adminSetUserPassword, adminDisableUser, adminUpdateUserAttributes, listUsers, adminGetUser } from '../cognito/accessCognito';
 import { createLogger } from '../utils/logger';
 import { getUploadUrl } from '../utils/images';
 
-const logger = createLogger('AccessCognito');
 
+const logger = createLogger('AccessCognito');
 
 /**
  * Gets all users of the configured User Pool from AWS Cognito.
@@ -20,7 +20,7 @@ export const readOneUser = async (username:string) => {
   try {
     return await adminGetUser(params);
   } catch(err) {
-    logger.error('Failed to call Users.adminDeleteUser()', err);
+    logger.error('Failed to call Users.adminGetUser()', err);
     throw err;
   }
 }
@@ -29,7 +29,7 @@ export const readOneUser = async (username:string) => {
 /**
  * Gets all users of the configured User Pool from AWS Cognito.
  *
- * @returns Array of CognitoUSers
+ * @returns Array of CognitoUsers
  */
 export const readAllUser = async () => {
   var params = {
@@ -46,8 +46,12 @@ export const readAllUser = async () => {
 
 
 /**
- * TODO
- * @param parsedBody
+ * Creates a new User in the configured Cognito User Pool.
+ *
+ * If the creation of the new user is successful, that users gets activated
+ * immediatly by setting the provided temporary password as a permanent password.
+ *
+ * @param parsedBody - the parsed body from the request as JSON.
  */
 export const createNewUser = async (parsedBody:any) => {
   let params = {
@@ -79,6 +83,11 @@ export const createNewUser = async (parsedBody:any) => {
   }
 }
 
+/**
+ * Updates the attributes of a user in the configured Cognito User Pool.
+ *
+ * @param parsedBody - the parsed body from the request as JSON.
+ */
 export const updateUser = async (parsedBody:any) => {
   var params = {
     UserPoolId: config.cognito.USER_POOL_ID,
@@ -96,8 +105,12 @@ export const updateUser = async (parsedBody:any) => {
 }
 
 /**
+ * Deletes a User from the Cognito User Pool.
  *
- * @param username
+ * Actually the user gets marked as disabled instead of deleting it from the datastore.
+ * This is necessary to not loose information of that user.
+ *
+ * @param username - The username of the user to be deleted.
  */
 export const deleteUser = async (username:string) => {
   var params = {
@@ -105,7 +118,7 @@ export const deleteUser = async (username:string) => {
     Username: username
   };
   try {
-    return await adminDeleteUser(params);
+    return await adminDisableUser(params);
   } catch(err) {
     logger.error('Failed to call AccessCognito.adminDeleteUser()', err);
     throw err;
@@ -114,7 +127,9 @@ export const deleteUser = async (username:string) => {
 
 /**
  * Generates a presigned Url for the S3 Bucket.
+ *
  * @param userId - The Id of the User.
+ *
  * @returns Object containing the signed URL from S3 and the URL to access the image.
  */
 export const generateSignedUrl = async (username: string): Promise<object> => {

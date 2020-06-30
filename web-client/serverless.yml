@@ -1,3 +1,9 @@
+##
+# Serverless framework configuration file, used for deploying the React frontend to a S3 Bucket.
+# - Creates S3 Bucket and necessary policies.
+# - Copies static Reaxt files from build folder to S3.
+# Used by the CI/CD Platform for automatic deployment of frontend.
+##
 service:
   name: react-frontend-for-serverless-app
 
